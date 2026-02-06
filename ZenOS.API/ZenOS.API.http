@@ -1,0 +1,6 @@
+@ZenOS.API_HostAddress = http://localhost:5082
+
+GET {{ZenOS.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/1.BaseLayer/">
+    <Project Path="../ZenOS.Util/ZenOS.Util.csproj" />
+  </Folder>
+  <Folder Name="/2.DataLayer/">
+    <Project Path="../ZenOS.DAL/ZenOS.DAL.csproj" />
+  </Folder>
+  <Folder Name="/3.LogicLayer/">
+    <Project Path="../ZenOS.BLL/ZenOS.BLL.csproj" />
+    <Project Path="../ZenOS.MB/ZenOS.MB.csproj" />
+  </Folder>
+  <Folder Name="/4.PresentationLayer/">
+    <Project Path="ZenOS.API/ZenOS.API.csproj" />
+  </Folder>
+</Solution>

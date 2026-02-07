@@ -15,6 +15,10 @@ public partial class LeaveRequest
 
     public Guid? LeaveTypeCatId { get; set; }
 
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? LeaveRequestCode { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime? StartDate { get; set; }
 

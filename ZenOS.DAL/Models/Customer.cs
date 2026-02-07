@@ -54,7 +54,7 @@ public partial class Customer
 
     [ForeignKey("MembershipLevelCatId")]
     [InverseProperty("Customers")]
-    public virtual MembershipLevel? MembershipLevelCat { get; set; }
+    public virtual CatMembershipLevel? MembershipLevelCat { get; set; }
 
     [InverseProperty("Customer")]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

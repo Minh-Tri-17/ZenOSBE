@@ -17,6 +17,10 @@ public partial class Roster
 
     public Guid? ShiftId { get; set; }
 
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? RosterCode { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime? WorkDate { get; set; }
 

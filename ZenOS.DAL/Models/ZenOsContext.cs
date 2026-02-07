@@ -39,6 +39,8 @@ public partial class ZenOsContext : DbContext
 
     public virtual DbSet<CatLeaveType> CatLeaveTypes { get; set; }
 
+    public virtual DbSet<CatMembershipLevel> CatMembershipLevels { get; set; }
+
     public virtual DbSet<CatProductCategory> CatProductCategories { get; set; }
 
     public virtual DbSet<CatProvince> CatProvinces { get; set; }
@@ -74,8 +76,6 @@ public partial class ZenOsContext : DbContext
     public virtual DbSet<MailHistory> MailHistories { get; set; }
 
     public virtual DbSet<MailTemplate> MailTemplates { get; set; }
-
-    public virtual DbSet<MembershipLevel> MembershipLevels { get; set; }
 
     public virtual DbSet<NotificationHistory> NotificationHistories { get; set; }
 
@@ -237,6 +237,13 @@ public partial class ZenOsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
+        modelBuilder.Entity<CatMembershipLevel>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_MembershipLevels");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
         modelBuilder.Entity<CatProductCategory>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_ProductCategories");
@@ -385,11 +392,6 @@ public partial class ZenOsContext : DbContext
         });
 
         modelBuilder.Entity<MailTemplate>(entity =>
-        {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<MembershipLevel>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
         });

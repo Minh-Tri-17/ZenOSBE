@@ -17,6 +17,10 @@ public partial class Appointment
 
     public Guid? EmployeeId { get; set; }
 
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? AppointmentCode { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime? AppointmentDate { get; set; }
 

@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Interfaces\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ZenOS.DAL\ZenOS.DAL.csproj" />
     <ProjectReference Include="..\ZenOS.MB\ZenOS.MB.csproj" />
+    <ProjectReference Include="..\ZenOS.Util\ZenOS.Util.csproj" />
   </ItemGroup>
 
 </Project>

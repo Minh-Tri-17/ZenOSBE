@@ -1,13 +1,13 @@
 <Solution>
   <Folder Name="/1.BaseLayer/">
-    <Project Path="../ZenOS.Util/ZenOS.Util.csproj" />
+    <Project Path="ZenOS.Util/ZenOS.Util.csproj" Id="be663a35-6b84-4a81-ae22-1c248042e881" />
   </Folder>
   <Folder Name="/2.DataLayer/">
-    <Project Path="../ZenOS.DAL/ZenOS.DAL.csproj" />
+    <Project Path="ZenOS.DAL/ZenOS.DAL.csproj" Id="b4d611b1-36ee-4664-a20e-1a2b0d73703c" />
   </Folder>
   <Folder Name="/3.LogicLayer/">
-    <Project Path="../ZenOS.BLL/ZenOS.BLL.csproj" />
-    <Project Path="../ZenOS.MB/ZenOS.MB.csproj" />
+    <Project Path="ZenOS.BLL/ZenOS.BLL.csproj" Id="70a95ef4-051c-4948-8656-6c352ea48c24" />
+    <Project Path="ZenOS.MB/ZenOS.MB.csproj" Id="9d6929c8-4b71-481c-bc98-25a1d765ea2a" />
   </Folder>
   <Folder Name="/4.PresentationLayer/">
     <Project Path="ZenOS.API/ZenOS.API.csproj" />

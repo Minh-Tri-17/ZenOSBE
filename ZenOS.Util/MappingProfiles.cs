@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using ZenOS.DAL.Models;
 using ZenOS.MB;
 

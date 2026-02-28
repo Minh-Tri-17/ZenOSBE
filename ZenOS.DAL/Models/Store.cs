@@ -147,6 +147,9 @@ public partial class Store
     public virtual ICollection<StoreSetting> StoreSettings { get; set; } = new List<StoreSetting>();
 
     [InverseProperty("Store")]
+    public virtual ICollection<Table> Tables { get; set; } = new List<Table>();
+
+    [InverseProperty("Store")]
     public virtual ICollection<TimeLog> TimeLogs { get; set; } = new List<TimeLog>();
 
     [InverseProperty("Store")]

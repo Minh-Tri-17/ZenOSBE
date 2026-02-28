@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ZenOS.MB
+﻿namespace ZenOS.MB
 {
     public class PagingResults<T>
     {
+        public List<T> Items { get; set; } = new List<T>();
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
         public int TotalRecord { get; set; }
-        public List<T> Items { get; set; } = new List<T>();
+        public int PageRecord => Items?.Count ?? 0;
         public int PageCount
         {
             get

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -10,7 +8,7 @@ namespace ZenOS.Util
 {
     public class MailHelpers
     {
-        private static IConfiguration _config;
+        private static IConfiguration? _config;
 
         public MailHelpers(IConfiguration config)
         {
@@ -21,7 +19,7 @@ namespace ZenOS.Util
         {
             try
             {
-                var host = DataHelpers.GetString(_config["ConfigMail:SMTPHost"]);
+                var host = DataHelpers.GetString(_config!["ConfigMail:SMTPHost"]);
                 var port = DataHelpers.GetInt(_config["ConfigMail:SMTPPort"]);
                 var fromEmail = DataHelpers.GetString(_config["ConfigMail:FromEmail"]);
                 var appPassword = DataHelpers.GetString(_config["ConfigMail:EmailPassword"]);

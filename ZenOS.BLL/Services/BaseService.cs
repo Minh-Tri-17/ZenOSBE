@@ -1,0 +1,213 @@
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using NPOI.XSSF.UserModel;
+using ZenOS.BLL.Interfaces;
+using ZenOS.DAL;
+using ZenOS.DAL.Models;
+using ZenOS.MB;
+using ZenOS.Util;
+
+namespace ZenOS.BLL.Services
+{
+    // abstract: Ngăn chặn việc khởi tạo trực tiếp
+    // virtual: Là các hàm có logic mặc định nhưng cho phép lớp con ghi đè
+    public abstract class BaseService<TEntity, TModel>
+        where TEntity : class, IBaseEntity, new()
+        where TModel : class, new()
+    {
+        protected readonly ZenOsContext _context;
+        protected readonly ICurrentUserService _currentUser;
+        protected readonly DbSet<TEntity> _dbSet;
+
+        protected BaseService(ZenOsContext context, ICurrentUserService currentUser)
+        {
+            _context = context;
+            _currentUser = currentUser;
+            _dbSet = _context.Set<TEntity>();
+        }
+
+        public virtual async Task<APIResults<bool>> CreateOrEdit(TModel request)
+        {
+            // 1. Lấy Id từ request bằng dynamic để tránh lỗi biên dịch do TModel chưa xác định có Id hay không
+            var requestId = (request as dynamic)?.Id?.ToString();
+            var id = DataHelpers.GetGuid(requestId);
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                TEntity entity;
+                bool isNew = id == Guid.Empty;
+
+                if (isNew)
+                {
+                    entity = new TEntity();
+
+                    await BeforeSaveAsync(request, entity, true);
+
+                    // Map dữ liệu từ request sang entity và gắn Audit (UserId, CreatedAt...)
+                    DataHelpers.MapAudit(request, entity, _currentUser.UserId);
+
+                    await _dbSet.AddAsync(entity);
+                }
+                else
+                {
+                    entity = await _dbSet.FindAsync(id);
+                    if (entity == null)
+                        return APIResults<bool>.Failure(Messages.NotFoundUpdate);
+
+                    await BeforeSaveAsync(request, entity, false);
+
+                    // Map đè dữ liệu mới từ request vào entity đang theo dõi (Tracking)
+                    DataHelpers.MapAudit(request, entity, _currentUser.UserId);
+                }
+
+                await AfterSaveAsync(request, entity);
+
+                var result = await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                if (result > 0)
+                {
+                    return APIResults<bool>.Success(true, isNew ? Messages.CreateSuccess : Messages.UpdateSuccess);
+                }
+                else
+                {
+                    return APIResults<bool>.Failure(isNew ? Messages.CreateFailure : Messages.UpdateFailure);
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return APIResults<bool>.Failure("Error: " + ex.Message);
+            }
+        }
+
+        protected virtual Task BeforeSaveAsync(TModel request, TEntity entity, bool isNew) => Task.CompletedTask;
+
+        protected virtual Task AfterSaveAsync(TModel request, TEntity entity) => Task.CompletedTask;
+
+        public virtual async Task<APIResults<bool>> Delete(string ids)
+        {
+            var listIds = ids.Split(',').Select(id => DataHelpers.GetGuid(id)).ToList();
+            var result = await _dbSet
+                .Where(s => listIds.Contains(s.Id))
+                .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsDelete, true));
+
+            return result > 0
+                ? APIResults<bool>.Success(true, Messages.DeleteSuccess)
+                : APIResults<bool>.Failure(Messages.DeleteFailure);
+        }
+
+        public virtual async Task<APIResults<bool>> DeletePermanently(string ids)
+        {
+            var listIds = ids.Split(',').Select(id => DataHelpers.GetGuid(id)).ToList();
+            var result = await _dbSet
+                .Where(s => listIds.Contains(s.Id))
+                .ExecuteDeleteAsync();
+
+            return result > 0
+                ? APIResults<bool>.Success(true, Messages.DeleteSuccess)
+                : APIResults<bool>.Failure(Messages.DeleteFailure);
+        }
+
+        public virtual async Task<APIResults<TModel>> GetOne(Guid id)
+        {
+            var entity = await _dbSet.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            if (entity == null) return APIResults<TModel>.Failure(Messages.NotFoundGet);
+
+            var model = DataHelpers.Mapping<TEntity, TModel>(entity);
+            return APIResults<TModel>.Success(model, Messages.GetResultSuccess);
+        }
+
+        public virtual async Task<APIResults<PagingResults<TModel>>> GetPaging(FilterModel filter)
+        {
+            IQueryable<TEntity> query = _dbSet.AsNoTracking().Where(x => !DataHelpers.GetBool(x.IsDelete));
+            query = query.ApplyCommonFilters(filter);
+
+            var totalCount = await query.CountAsync();
+            query = query.ApplyPaging(filter);
+
+            var list = await query.OrderByDescending(s => s.UpdatedAt ?? s.CreatedAt).ToListAsync();
+            var listModel = DataHelpers.MappingList<TEntity, TModel>(list);
+
+            var pageResult = new PagingResults<TModel>
+            {
+                TotalRecord = totalCount,
+                PageIndex = filter.PageIndex,
+                PageSize = filter.PageSize,
+                Items = listModel
+            };
+
+            return APIResults<PagingResults<TModel>>.Success(pageResult, Messages.GetListResultSuccess);
+        }
+
+        public virtual async Task<APIResults<byte[]>> Export(FilterModel filter)
+        {
+            var dataResult = await GetPaging(filter);
+            var items = dataResult?.Result?.Items ?? new List<TModel>();
+
+            using var workbook = new XLWorkbook();
+            // Lấy tên Class Entity làm tên Sheet
+            var sheetName = typeof(TEntity).Name;
+            var worksheet = workbook.Worksheets.Add(sheetName);
+
+            // Chuyển Model về Entity để DataHelpers xử lý export
+            var listEntity = DataHelpers.MappingList<TModel, TEntity>(items);
+            DataHelpers.CopyExport(worksheet, listEntity);
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            var bytes = stream.ToArray();
+
+            return bytes.Length > 0
+                ? APIResults<byte[]>.Success(bytes, Messages.ExportSuccess)
+                : APIResults<byte[]>.Failure(Messages.ExportFailure);
+        }
+
+        public virtual async Task<APIResults<bool>> Import(IFormFile fileImport)
+        {
+            if (fileImport == null || fileImport.Length <= 0)
+                return APIResults<bool>.Failure(Messages.ImportFailure);
+
+            using var stream = new MemoryStream();
+            await fileImport.CopyToAsync(stream);
+            stream.Position = 0;
+
+            using var workbook = new XSSFWorkbook(stream);
+            var sheet = workbook.GetSheetAt(0);
+            var headerRow = sheet.GetRow(0);
+
+            var listModel = new List<TModel>();
+
+            for (int i = 1; i <= sheet.LastRowNum; i++)
+            {
+                var row = sheet.GetRow(i);
+                // Bỏ qua nếu hàng trống
+                if (row == null || row.Cells.All(c => c.CellType == NPOI.SS.UserModel.CellType.Blank))
+                    continue;
+
+                TModel model = DataHelpers.CopyImport<TModel>(headerRow, row);
+                listModel.Add(model);
+            }
+
+            var listEntity = new List<TEntity>();
+            // Map từ Model sang Entity và gắn UserId để Audit
+            DataHelpers.MapListAudit<TModel, TEntity>(listModel, listEntity, _currentUser.UserId);
+
+            // Tắt theo dõi thay đổi để tăng tốc độ nạp dữ liệu
+            _context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            await _dbSet.AddRangeAsync(listEntity);
+            var result = await _context.SaveChangesAsync();
+
+            // Bật lại hoặc Clear tracker
+            _context.ChangeTracker.Clear();
+
+            return result > 0
+                ? APIResults<bool>.Success(true, Messages.ImportSuccess)
+                : APIResults<bool>.Failure(Messages.ImportFailure);
+        }
+    }
+}

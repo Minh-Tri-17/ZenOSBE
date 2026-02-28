@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ZenOS.Util
+﻿namespace ZenOS.Util
 {
     public enum FilterOperator
     {

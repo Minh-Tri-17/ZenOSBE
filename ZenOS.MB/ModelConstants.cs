@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ZenOS.MB
+﻿namespace ZenOS.MB
 {
     public class TableName
     {
@@ -61,6 +57,7 @@ namespace ZenOS.MB
         public const string StoreSetting = "StoreSetting";
         public const string Supplier = "Supplier";
         public const string SystemSetting = "SystemSetting";
+        public const string Table = "Table";
         public const string TimeLog = "TimeLog";
         public const string Topping = "Topping";
         public const string User = "User";

@@ -125,6 +125,8 @@ public partial class ZenOsContext : DbContext
 
     public virtual DbSet<SystemSetting> SystemSettings { get; set; }
 
+    public virtual DbSet<Table> Tables { get; set; }
+
     public virtual DbSet<TimeLog> TimeLogs { get; set; }
 
     public virtual DbSet<Topping> Toppings { get; set; }
@@ -419,6 +421,8 @@ public partial class ZenOsContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders).HasConstraintName("FK_Orders_Customers");
 
             entity.HasOne(d => d.Store).WithMany(p => p.Orders).HasConstraintName("FK_Orders_Stores");
+
+            entity.HasOne(d => d.Table).WithMany(p => p.Orders).HasConstraintName("FK_Orders_Tables");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
@@ -604,6 +608,13 @@ public partial class ZenOsContext : DbContext
         modelBuilder.Entity<SystemSetting>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<Table>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Store).WithMany(p => p.Tables).HasConstraintName("FK_Tables_Stores");
         });
 
         modelBuilder.Entity<TimeLog>(entity =>

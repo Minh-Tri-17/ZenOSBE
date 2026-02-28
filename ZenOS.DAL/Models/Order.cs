@@ -15,6 +15,8 @@ public partial class Order
 
     public Guid? CustomerId { get; set; }
 
+    public Guid? TableId { get; set; }
+
     [StringLength(50)]
     [Unicode(false)]
     public string? OrderCode { get; set; }
@@ -33,10 +35,6 @@ public partial class Order
 
     [StringLength(250)]
     public string? CustomerName { get; set; }
-
-    [StringLength(20)]
-    [Unicode(false)]
-    public string? TableNumber { get; set; }
 
     [StringLength(500)]
     public string? DeliveryAddress { get; set; }
@@ -111,4 +109,8 @@ public partial class Order
     [ForeignKey("StoreId")]
     [InverseProperty("Orders")]
     public virtual Store? Store { get; set; }
+
+    [ForeignKey("TableId")]
+    [InverseProperty("Orders")]
+    public virtual Table? Table { get; set; }
 }

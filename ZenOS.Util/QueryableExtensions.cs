@@ -1,8 +1,4 @@
-﻿using ClosedXML.Excel;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.EntityFrameworkCore;
 using ZenOS.MB;
 
 namespace ZenOS.Util
@@ -27,7 +23,7 @@ namespace ZenOS.Util
                         {
                             var propValue = DataHelpers.GetString(filterValue);
                             if (!string.IsNullOrWhiteSpace(propValue))
-                                query = query.Where(s => EF.Functions.Like(EF.Property<string>(s, propName).ToLower(),
+                                query = query.Where(s => EF.Functions.Like(EF.Property<string>(s!, propName).ToLower(),
                                     $"%{propValue.Trim().ToLower()}%"));
 
                             break;
@@ -36,7 +32,7 @@ namespace ZenOS.Util
                         {
                             var propValue = DataHelpers.GetString(filterValue);
                             if (!string.IsNullOrWhiteSpace(propValue))
-                                query = query.Where(s => EF.Property<string>(s, propName).Contains(propValue));
+                                query = query.Where(s => EF.Property<string>(s!, propName).Contains(propValue));
 
                             break;
                         }
@@ -49,7 +45,7 @@ namespace ZenOS.Util
                                 .ToList();
 
                             if (listGuids.Any())
-                                query = query.Where(s => listGuids.Contains(EF.Property<Guid>(s, Constants.Id)));
+                                query = query.Where(s => listGuids.Contains(EF.Property<Guid>(s!, Constants.Id)));
 
                             break;
                         }
@@ -57,7 +53,7 @@ namespace ZenOS.Util
                         {
                             var propValue = DataHelpers.GetDateTime(filterValue);
                             if (propValue != DateTime.MinValue)
-                                query = query.Where(s => EF.Functions.DateDiffDay(EF.Property<DateTime?>(s, propName).Value,
+                                query = query.Where(s => EF.Functions.DateDiffDay(EF.Property<DateTime?>(s!, propName)!.Value,
                                     propValue) == 0);
 
                             break;
@@ -66,19 +62,19 @@ namespace ZenOS.Util
                         {
                             var propValue = DataHelpers.GetInt(filterValue);
                             if (propValue != 0)
-                                query = query.Where(s => EF.Property<int?>(s, propName) == propValue);
+                                query = query.Where(s => EF.Property<int?>(s!, propName) == propValue);
 
                             break;
                         }
                     case (nameof(FilterType.Boolean), nameof(FilterOperator.Equal)):
                         {
-                            query = query.Where(s => EF.Property<bool?>(s, propName) == true);
+                            query = query.Where(s => EF.Property<bool?>(s!, propName) == true);
 
                             break;
                         }
                     case (nameof(FilterType.Boolean), nameof(FilterOperator.NotEqual)):
                         {
-                            query = query.Where(s => EF.Property<bool?>(s, propName) != true);
+                            query = query.Where(s => EF.Property<bool?>(s!, propName) != true);
 
                             break;
                         }

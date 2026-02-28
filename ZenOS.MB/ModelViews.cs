@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using ZenOS.DAL.Models;
 
 namespace ZenOS.MB
 {
-    #region Model Database
+    #region Model database
 
     public partial class AppointmentModel : Appointment
     {
@@ -449,6 +446,14 @@ namespace ZenOS.MB
         public string Ids { get; set; } = string.Empty;
     }
 
+    public partial class TableModel : Table
+    {
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
+        public bool AllowPaging { get; set; } = true;
+        public string Ids { get; set; } = string.Empty;
+    }
+
     public partial class TimeLogModel : TimeLog
     {
         public int PageIndex { get; set; } = 1;
@@ -467,6 +472,10 @@ namespace ZenOS.MB
 
     public partial class UserModel : User
     {
+        public bool Remember { get; set; } = false;
+        [Required]
+        public string Password { get; set; } = string.Empty;
+        public string RoleIds { get; set; } = string.Empty;
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
@@ -479,6 +488,69 @@ namespace ZenOS.MB
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
         public string Ids { get; set; } = string.Empty;
+    }
+
+    #endregion
+
+    #region Model chart
+
+    public class DataChartNumericModel
+    {
+        public List<NumericSeriesModel>? Values { get; set; }
+        public string[]? Labels { get; set; }
+    }
+
+    public class NumericSeriesModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public int[]? Data { get; set; }
+    }
+
+    public class DataChartSingleModel
+    {
+        public int[]? Values { get; set; }
+        public string[]? Labels { get; set; }
+    }
+
+    public class DataChartTreeModel
+    {
+        public string Id { get; set; } = string.Empty;
+        public NodeData Data { get; set; } = new NodeData();
+        public List<DataChartTreeModel>? Children { get; set; } = new List<DataChartTreeModel>();
+    }
+
+    public class NodeData
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ImageURL { get; set; } = string.Empty;
+        public string BorderColor { get; set; } = string.Empty;
+    }
+
+    public class DataChartXYModel
+    {
+        public List<XYSeriesModel>? Values { get; set; }
+        public string[]? Labels { get; set; }
+    }
+
+    public class XYSeriesModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public List<XYPointModel>? Data { get; set; }
+    }
+
+    public class XYPointModel
+    {
+        public string X { get; set; } = string.Empty;
+        public int Y { get; set; }
+    }
+
+    public class DashboardModel
+    {
+        public decimal StatisticsProfit { get; set; } = 0;
+        public decimal StatisticsRevenue { get; set; } = 0;
+        public decimal StatisticsSpending { get; set; } = 0;
+        public int StatisticsCustomer { get; set; } = 0;
+        public List<string> StatisticsService { get; set; } = new List<string>();
     }
 
     #endregion

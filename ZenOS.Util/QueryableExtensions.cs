@@ -5,6 +5,13 @@ namespace ZenOS.Util
 {
     public static class QueryableExtensions
     {
+        /// <summary>
+        /// Áp dụng bộ lọc động dựa trên tham số truyền lên từ Client (FilterModel)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public static IQueryable<T> ApplyCommonFilters<T>(this IQueryable<T> query, FilterModel filter)
         {
             foreach (var item in filter.Filters)
@@ -84,11 +91,36 @@ namespace ZenOS.Util
             return query;
         }
 
+        /// <summary>
+        /// Giới hạn số lượng bản ghi trả về từ Database dựa trên vị trí trang và kích thước trang yêu cầu.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, FilterModel filter)
         {
             if (filter.AllowPaging)
             {
                 query = query.Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize);
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        /// Tự động kiểm tra và thêm điều kiện lọc các bản ghi "đã xóa tạm"
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static IQueryable<T> ApplySoftDelete<T>(this IQueryable<T> query)
+        {
+            var prop = typeof(T).GetProperty(Constants.IsDelete);
+
+            if (prop != null)
+            {
+                return query.Where(x => EF.Property<bool?>(x!, Constants.IsDelete) != true);
             }
 
             return query;

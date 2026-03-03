@@ -114,7 +114,8 @@ namespace ZenOS.BLL.Services
 
         public virtual async Task<APIResults<TModel>> GetOne(Guid id)
         {
-            var entity = await _dbSet.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            var entity = await _dbSet.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (entity == null) return APIResults<TModel>.Failure(Messages.NotFoundGet);
 
             var model = DataHelpers.Mapping<TEntity, TModel>(entity);
@@ -123,8 +124,9 @@ namespace ZenOS.BLL.Services
 
         public virtual async Task<APIResults<PagingResults<TModel>>> GetPaging(FilterModel filter)
         {
-            IQueryable<TEntity> query = _dbSet.AsNoTracking().Where(x => !DataHelpers.GetBool(x.IsDelete));
-            query = query.ApplyCommonFilters(filter);
+            IQueryable<TEntity> query = _dbSet.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
+                .ApplySoftDelete()
+                .ApplyCommonFilters(filter);
 
             var totalCount = await query.CountAsync();
             query = query.ApplyPaging(filter);

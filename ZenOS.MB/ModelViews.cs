@@ -11,7 +11,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ApprovalActionModel : ApprovalAction
@@ -19,7 +19,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ApprovalFlowModel : ApprovalFlow
@@ -27,7 +27,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ApprovalRequestModel : ApprovalRequest
@@ -35,7 +35,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ApprovalStepModel : ApprovalStep
@@ -43,7 +43,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ApprovalStepAssignmentModel : ApprovalStepAssignment
@@ -51,7 +51,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatContractTypeModel : CatContractType
@@ -59,7 +59,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatCountryModel : CatCountry
@@ -67,7 +67,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatDepartmentModel : CatDepartment
@@ -75,7 +75,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatIngredientCategoryModel : CatIngredientCategory
@@ -83,7 +83,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatJobTitleModel : CatJobTitle
@@ -91,7 +91,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatLeaveTypeModel : CatLeaveType
@@ -99,7 +99,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatMembershipLevelModel : CatMembershipLevel
@@ -107,7 +107,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatProductCategoryModel : CatProductCategory
@@ -115,7 +115,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatProvinceModel : CatProvince
@@ -123,7 +123,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatSupplierCategoryModel : CatSupplierCategory
@@ -131,7 +131,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatUnitModel : CatUnit
@@ -139,7 +139,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CatWardModel : CatWard
@@ -147,7 +147,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CodeSequenceModel : CodeSequence
@@ -155,7 +155,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ComboModel : Combo
@@ -163,7 +163,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ComboItemModel : ComboItem
@@ -171,7 +171,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ContractModel : Contract
@@ -179,7 +179,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class CustomerModel : Customer
@@ -187,7 +187,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class EmployeeModel : Employee
@@ -195,7 +195,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class IngredientModel : Ingredient
@@ -203,7 +203,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class InventoryStockModel : InventoryStock
@@ -211,7 +211,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class InventoryTransactionModel : InventoryTransaction
@@ -219,7 +219,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class InvoiceModel : Invoice
@@ -227,7 +227,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class LeaveRequestModel : LeaveRequest
@@ -235,7 +235,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class MailHistoryModel : MailHistory
@@ -243,7 +243,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class MailTemplateModel : MailTemplate
@@ -251,7 +251,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class NotificationHistoryModel : NotificationHistory
@@ -259,7 +259,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class NotificationTemplateModel : NotificationTemplate
@@ -267,7 +267,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class OrderModel : Order
@@ -275,7 +275,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class OrderItemModel : OrderItem
@@ -283,7 +283,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class OrderItemToppingModel : OrderItemTopping
@@ -291,7 +291,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class PaymentModel : Payment
@@ -299,7 +299,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class PayrollModel : Payroll
@@ -307,7 +307,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class PayrollItemModel : PayrollItem
@@ -315,7 +315,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ProductModel : Product
@@ -323,7 +323,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class PromotionModel : Promotion
@@ -331,7 +331,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class PurchaseOrderModel : PurchaseOrder
@@ -339,7 +339,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class PurchaseOrderItemModel : PurchaseOrderItem
@@ -347,7 +347,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class RecipeModel : Recipe
@@ -355,7 +355,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class RecipeItemModel : RecipeItem
@@ -363,7 +363,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class RefundModel : Refund
@@ -371,7 +371,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class RoleModel : Role
@@ -379,7 +379,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class RolePermissionModel : RolePermission
@@ -387,7 +387,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class RosterModel : Roster
@@ -395,7 +395,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class SalaryStructureModel : SalaryStructure
@@ -403,7 +403,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ShiftModel : Shift
@@ -411,7 +411,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class StoreModel : Store
@@ -419,7 +419,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class StoreSettingModel : StoreSetting
@@ -427,7 +427,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class SupplierModel : Supplier
@@ -435,7 +435,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class SystemSettingModel : SystemSetting
@@ -443,7 +443,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class TableModel : Table
@@ -451,7 +451,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class TimeLogModel : TimeLog
@@ -459,7 +459,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class ToppingModel : Topping
@@ -467,19 +467,19 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class UserModel : User
     {
         public bool Remember { get; set; } = false;
         [Required]
-        public string Password { get; set; } = string.Empty;
-        public string RoleIds { get; set; } = string.Empty;
+        public string? Password { get; set; }
+        public string? RoleIds { get; set; }
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     public partial class UserRoleModel : UserRole
@@ -487,7 +487,7 @@ namespace ZenOS.MB
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 20;
         public bool AllowPaging { get; set; } = true;
-        public string Ids { get; set; } = string.Empty;
+        public string? Ids { get; set; }
     }
 
     #endregion
@@ -502,7 +502,7 @@ namespace ZenOS.MB
 
     public class NumericSeriesModel
     {
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
         public int[]? Data { get; set; }
     }
 
@@ -514,16 +514,16 @@ namespace ZenOS.MB
 
     public class DataChartTreeModel
     {
-        public string Id { get; set; } = string.Empty;
+        public string? Id { get; set; }
         public NodeData Data { get; set; } = new NodeData();
         public List<DataChartTreeModel>? Children { get; set; } = new List<DataChartTreeModel>();
     }
 
     public class NodeData
     {
-        public string Name { get; set; } = string.Empty;
-        public string ImageURL { get; set; } = string.Empty;
-        public string BorderColor { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? ImageURL { get; set; }
+        public string? BorderColor { get; set; }
     }
 
     public class DataChartXYModel
@@ -534,13 +534,13 @@ namespace ZenOS.MB
 
     public class XYSeriesModel
     {
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
         public List<XYPointModel>? Data { get; set; }
     }
 
     public class XYPointModel
     {
-        public string X { get; set; } = string.Empty;
+        public string? X { get; set; }
         public int Y { get; set; }
     }
 
@@ -558,11 +558,11 @@ namespace ZenOS.MB
     public class MailModel
     {
         [Required]
-        public string To { get; set; } = string.Empty;
+        public string? To { get; set; }
         [Required]
-        public string Subject { get; set; } = string.Empty;
+        public string? Subject { get; set; }
         [Required]
-        public string Body { get; set; } = string.Empty;
+        public string? Body { get; set; }
         public List<string> CC { get; set; } = new List<string>();
         public List<string> BCC { get; set; } = new List<string>();
         public List<IFormFile>? Attachments { get; set; }
@@ -579,9 +579,9 @@ namespace ZenOS.MB
 
     public class FilterItemModel
     {
-        public string FilterName { get; set; } = string.Empty;
-        public string FilterValue { get; set; } = string.Empty;
-        public string FilterType { get; set; } = string.Empty;
-        public string FilterOperator { get; set; } = string.Empty;
+        public string? FilterName { get; set; }
+        public string? FilterValue { get; set; }
+        public string? FilterType { get; set; }
+        public string? FilterOperator { get; set; }
     }
 }

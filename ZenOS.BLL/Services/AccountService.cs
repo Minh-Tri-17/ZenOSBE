@@ -77,10 +77,12 @@ namespace ZenOS.BLL.Services
             #endregion
 
             var tokenKey = _config["Tokens:Key"];
+
             if (string.IsNullOrEmpty(tokenKey))
             {
                 return APIResults<string>.Failure(Messages.TokenKeyNotConfigured);
             }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

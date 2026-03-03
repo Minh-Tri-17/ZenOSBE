@@ -78,6 +78,7 @@ builder.Services.AddScoped<ITimeLogService, TimeLogService>();
 builder.Services.AddScoped<IToppingService, ToppingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+builder.Services.AddScoped<DevUserSeeder>();
 
 #endregion
 
@@ -144,8 +145,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Nhập mã JWT Access Token để xác thực hệ thống.\n\n" +
                       "**Lưu ý:**\n" +
                       "- Chỉ nhập chuỗi Token (Ví dụ: `eyJhbGci...`)\n" +
-                      "- **KHÔNG** gõ thêm chữ 'Bearer' ở phía trước (hệ thống tự thêm).\n\n" +
-                      "**Ví dụ:** `12345abcdef...`"
+                      "- **KHÔNG** gõ thêm chữ 'Bearer' ở phía trước (hệ thống tự thêm).\n\n"
     };
 
     // Đăng ký định nghĩa trên vào Swagger với ID là "Bearer"
@@ -167,6 +167,9 @@ builder.Services.AddSwaggerGen(options =>
             }
         };
     });
+
+    // 4. Loại bỏ các Navigation Property (toàn hệ thống)
+    options.SchemaFilter<HideNavigationPropertiesSchemaFilter>();
 });
 
 string issuer = builder.Configuration.GetValue<string>("Tokens:Issuer");
@@ -226,6 +229,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
 
     app.UseSwaggerUI();
+
+    // Tạo user mặc định cho dev
+    using (var scope = app.Services.CreateScope())
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<DevUserSeeder>();
+        seeder.Seed();
+    }
 }
 
 var mapper = app.Services.GetRequiredService<IMapper>();

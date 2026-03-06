@@ -23,13 +23,23 @@ namespace ZenOS.API.Controllers
             _service = service;
         }
 
-        [HttpPost(nameof(CreateOrEdit))]
-        public virtual async Task<ActionResult> CreateOrEdit(TModel model)
+        [HttpPost(nameof(Create))]
+        public virtual async Task<ActionResult> Create(TModel model)
         {
             if (model == null)
                 return BadRequest();
 
-            var result = await _service.CreateOrEdit(model);
+            var result = await _service.Create(model);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPatch(nameof(Edit))]
+        public virtual async Task<ActionResult> Edit(TModel model)
+        {
+            if (model == null)
+                return BadRequest();
+
+            var result = await _service.Edit(model);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -55,13 +65,12 @@ namespace ZenOS.API.Controllers
         }
 
         [HttpPost(nameof(Import))]
-        public virtual async Task<ActionResult> Import()
+        public virtual async Task<ActionResult> Import(IFormFile file)
         {
-            var excelFile = Request.Form.Files[Constants.ExcelFiles];
-            if (excelFile == null)
+            if (file == null || file.Length == 0)
                 return BadRequest(Constants.FileNotFound);
 
-            var result = await _service.Import(excelFile);
+            var result = await _service.Import(file);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

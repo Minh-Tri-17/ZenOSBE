@@ -98,7 +98,7 @@ builder.Services.AddDbContext<ZenOsContext>(options =>
 // Cấu hình chính sách CORS: Cho phép các ứng dụng Frontend từ danh sách origins cụ thể
 builder.Services.AddCors(p => p.AddPolicy("FrontendCorsPolicy", build =>
 {
-    build.WithOrigins("http://localhost:2026", "https://localhost:20268").AllowAnyMethod().AllowAnyHeader();
+    build.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
 }));
 
 // Cấu hình giới hạn kích thước dữ liệu gửi lên (Body Size) cho Multipart (thường là Upload file)

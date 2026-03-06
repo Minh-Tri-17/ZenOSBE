@@ -27,59 +27,80 @@ namespace ZenOS.BLL.Services
             _dbSet = _context.Set<TEntity>();
         }
 
-        public virtual async Task<APIResults<bool>> CreateOrEdit(TModel request)
+        public virtual async Task<APIResults<bool>> Create(TModel request)
         {
-            // 1. Lấy Id từ request bằng dynamic để tránh lỗi biên dịch do TModel chưa xác định có Id hay không
-            var requestId = (request as dynamic)?.Id?.ToString();
-            var id = DataHelpers.GetGuid(requestId);
-
+            // Bắt đầu một giao dịch mới để nhóm các thao tác cơ sở dữ liệu lại với nhau.
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                TEntity entity;
-                bool isNew = id == Guid.Empty;
+                TEntity entity = new TEntity();
 
-                if (isNew)
-                {
-                    entity = new TEntity();
+                await BeforeSaveAsync(request, entity, true);
 
-                    await BeforeSaveAsync(request, entity, true);
+                // Map dữ liệu từ request sang entity và gắn Audit (UserId, CreatedAt...)
+                DataHelpers.MapAudit(request, entity, _currentUser.UserId);
 
-                    // Map dữ liệu từ request sang entity và gắn Audit (UserId, CreatedAt...)
-                    DataHelpers.MapAudit(request, entity, _currentUser.UserId);
-
-                    await _dbSet.AddAsync(entity);
-                }
-                else
-                {
-                    entity = await _dbSet.FindAsync(id);
-                    if (entity == null)
-                        return APIResults<bool>.Failure(Messages.NotFoundUpdate);
-
-                    await BeforeSaveAsync(request, entity, false);
-
-                    // Map đè dữ liệu mới từ request vào entity đang theo dõi (Tracking)
-                    DataHelpers.MapAudit(request, entity, _currentUser.UserId);
-                }
+                await _dbSet.AddAsync(entity);
 
                 await AfterSaveAsync(request, entity);
 
                 var result = await _context.SaveChangesAsync();
 
-                await transaction.CommitAsync();
+                await transaction.CommitAsync(); // Lưu vĩnh viễn mọi thay đổi trong giao dịch vào cơ sở dữ liệu một cách an toàn.
 
                 if (result > 0)
                 {
-                    return APIResults<bool>.Success(true, isNew ? Messages.CreateSuccess : Messages.UpdateSuccess);
+                    return APIResults<bool>.Success(true, Messages.CreateSuccess);
                 }
                 else
                 {
-                    return APIResults<bool>.Failure(isNew ? Messages.CreateFailure : Messages.UpdateFailure);
+                    return APIResults<bool>.Failure(Messages.CreateFailure);
                 }
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(); // Hủy bỏ toàn bộ các thay đổi trong giao dịch khi xảy ra lỗi.
+                return APIResults<bool>.Failure("Error: " + ex.Message);
+            }
+        }
+
+        public virtual async Task<APIResults<bool>> Edit(TModel request)
+        {
+            // 1. Lấy Id từ request bằng dynamic để tránh lỗi biên dịch do TModel chưa xác định có Id hay không
+            var requestId = (request as dynamic)?.Id?.ToString();
+            var id = DataHelpers.GetGuid(requestId);
+
+            // Bắt đầu một giao dịch mới để nhóm các thao tác cơ sở dữ liệu lại với nhau.
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                TEntity entity = await _dbSet.FindAsync(id);
+                if (entity == null)
+                    return APIResults<bool>.Failure(Messages.NotFoundUpdate);
+
+                await BeforeSaveAsync(request, entity, false);
+
+                // Map đè dữ liệu mới từ request vào entity đang theo dõi (Tracking)
+                DataHelpers.MapAudit(request, entity, _currentUser.UserId);
+
+                await AfterSaveAsync(request, entity);
+
+                var result = await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync(); // Lưu vĩnh viễn mọi thay đổi trong giao dịch vào cơ sở dữ liệu một cách an toàn.
+
+                if (result > 0)
+                {
+                    return APIResults<bool>.Success(true, Messages.UpdateSuccess);
+                }
+                else
+                {
+                    return APIResults<bool>.Failure(Messages.UpdateFailure);
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(); // Hủy bỏ toàn bộ các thay đổi trong giao dịch khi xảy ra lỗi.
                 return APIResults<bool>.Failure("Error: " + ex.Message);
             }
         }

@@ -96,7 +96,7 @@ namespace ZenOS.BLL.Services
                signingCredentials: creds);
 
             return token != null
-                ? APIResults<string>.Success(Messages.AuthSuccess, new JwtSecurityTokenHandler().WriteToken(token))
+                ? APIResults<string>.Success(new JwtSecurityTokenHandler().WriteToken(token), Messages.AuthSuccess)
                 : APIResults<string>.Failure(Messages.AuthFailure);
         }
 

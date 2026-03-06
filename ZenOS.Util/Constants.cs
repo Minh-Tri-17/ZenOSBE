@@ -57,7 +57,6 @@
         public const string PageIndex = "PageIndex";
         public const string PageSize = "PageSize";
         public const string AllowPaging = "AllowPaging";
-        public const string ExcelFiles = "ExcelFiles";
         public const string FileNotFound = "FileNotFound";
         public const string Context = "Context";
     }

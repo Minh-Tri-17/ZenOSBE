@@ -11,7 +11,8 @@ namespace ZenOS.BLL.Interfaces
         Task<APIResults<TModel>> GetOne(Guid id);
         Task<APIResults<bool>> Delete(string ids);
         Task<APIResults<bool>> DeletePermanently(string ids);
-        Task<APIResults<bool>> CreateOrEdit(TModel request);
+        Task<APIResults<bool>> Create(TModel request);
+        Task<APIResults<bool>> Edit(TModel request);
         Task<APIResults<byte[]>> Export(FilterModel filter);
         Task<APIResults<bool>> Import(IFormFile fileImport);
     }

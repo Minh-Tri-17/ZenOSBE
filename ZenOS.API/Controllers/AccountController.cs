@@ -54,7 +54,7 @@ namespace ZenOS.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost(nameof(ResetPassword))]
+        [HttpPatch(nameof(ResetPassword))]
         public async Task<ActionResult<APIResults<bool>>> ResetPassword([FromBody] UserModel user)
         {
             if (user == null)

@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Serilog;
+using Serilog.Events;
+using ZenOS.API.Middleware;
 using ZenOS.BLL.Interfaces;
 using ZenOS.BLL.Services;
 using ZenOS.DAL.Models;
@@ -219,6 +222,24 @@ builder.Services.Configure<IdentityOptions>(options =>
 // Cấu hình AutoMapper bằng cách đăng ký trực tiếp lớp MappingProfiles vào hệ thống Dependency Injection.
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfiles>());
 
+// Ghi log
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    // Giảm log từ ASP.NET
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    // Giảm log từ Entity Framework
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    // Giảm log từ System
+    .MinimumLevel.Override("System", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.File(
+        "logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 #endregion
 
 var app = builder.Build();
@@ -241,13 +262,22 @@ if (app.Environment.IsDevelopment())
 var mapper = app.Services.GetRequiredService<IMapper>();
 DataHelpers.ConfigureMapper(mapper);
 
-app.UseAuthentication();// 🔑 Xác thực
+app.UseMiddleware<ExceptionMiddleware>(); // ⚠️ Bắt toàn bộ lỗi
 
-app.UseHttpsRedirection();// 🔐 Chuyển hướng HTTPS
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+}); // 📝 Ghi log toàn bộ HTTP request/response
 
-app.UseCors("FrontendCorsPolicy");// 🌐 CORS cho phép truy cập từ frontend
+app.UseHttpsRedirection(); // 🔐 Chuyển hướng HTTPS
 
-app.UseAuthorization();// 🔐 Phân quyền
+app.UseRouting(); // 🧭 Routing
+
+app.UseCors("FrontendCorsPolicy"); // 🌐 CORS cho phép truy cập từ frontend
+
+app.UseAuthentication(); // 🔑 Xác thực
+
+app.UseAuthorization(); // 🔐 Phân quyền
 
 app.MapControllers();
 

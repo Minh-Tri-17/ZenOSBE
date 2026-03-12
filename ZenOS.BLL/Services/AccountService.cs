@@ -41,13 +41,14 @@ namespace ZenOS.BLL.Services
             var username = DataHelpers.GetString(request.Username);
             var password = DataHelpers.GetString(request.Password);
 
-            var user = await _context.Users.FirstOrDefaultAsync(s => !string.IsNullOrWhiteSpace(s.Username) && s.Username == username);
+            var user = await _context.Users.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
+                .FirstOrDefaultAsync(s => !string.IsNullOrWhiteSpace(s.Username) && s.Username == username);
             if (user == null)
-                return APIResults<string>.Failure(string.Format(Messages.UserNameNotExist, username));
+                return APIResults<string>.Failure(Messages.InvalidUsernameOrPassword); // Luôn trả ra message chung chung để tránh hacker biết được thông tin chính xác
 
             var checkPassword = PasswordHasher.VerifyPassword(password, DataHelpers.GetString(user.PasswordHash));
             if (checkPassword == false)
-                return APIResults<string>.Failure(string.Format(Messages.UserNameOrPasswordIncorrect, username, password));
+                return APIResults<string>.Failure(Messages.InvalidUsernameOrPassword); // Luôn trả ra message chung chung để tránh hacker biết được thông tin chính xác
 
             var employee = await _context.Employees.FirstOrDefaultAsync(s => s.Id == DataHelpers.GetGuid(user.EmployeeId));
 
@@ -56,6 +57,7 @@ namespace ZenOS.BLL.Services
 
             var claims = new List<Claim>
             {
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Name, DataHelpers.GetString(user.Username)),
                 new Claim(ClaimTypes.GivenName, DataHelpers.GetString(employeeName)),
                 new Claim("UserID", DataHelpers.GetString(user.Id.ToString())),
@@ -77,23 +79,19 @@ namespace ZenOS.BLL.Services
             #endregion
 
             var tokenKey = _config["Tokens:Key"];
+            var tokenIssuer = _config["Tokens:Issuer"];
 
             if (string.IsNullOrEmpty(tokenKey))
-            {
                 return APIResults<string>.Failure(Messages.TokenKeyNotConfigured);
-            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            DateTime expirationTime;
-            expirationTime = request.Remember ? DateTime.Now.AddYears(1) : DateTime.Now.AddHours(1);
+            DateTime expirationTime = request.Remember
+                ? DateTime.UtcNow.AddYears(1) : DateTime.UtcNow.AddHours(1); // UtcNow để không lỗi khi server khác timezone
 
-            var token = new JwtSecurityToken(_config["Tokens:Issuer"],
-               _config["Tokens:Issuer"],
-               claims,
-               expires: expirationTime,
-               signingCredentials: creds);
+            var token = new JwtSecurityToken(tokenIssuer, tokenIssuer, claims,
+               expires: expirationTime, signingCredentials: creds);
 
             return token != null
                 ? APIResults<string>.Success(new JwtSecurityTokenHandler().WriteToken(token), Messages.AuthSuccess)
@@ -108,7 +106,8 @@ namespace ZenOS.BLL.Services
             var password = DataHelpers.GetString(request.Password);
             var passwordHashed = PasswordHasher.HashPassword(password);
 
-            var user = await _context.Users.FirstOrDefaultAsync(s => s.Username == username
+            var user = await _context.Users.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
+                .FirstOrDefaultAsync(s => s.Username == username
                && s.PhoneNumber == phoneNumber && s.Email == mail);
 
             if (user == null)

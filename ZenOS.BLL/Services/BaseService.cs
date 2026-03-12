@@ -57,10 +57,10 @@ namespace ZenOS.BLL.Services
                     return APIResults<bool>.Failure(Messages.CreateFailure);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 await transaction.RollbackAsync(); // Hủy bỏ toàn bộ các thay đổi trong giao dịch khi xảy ra lỗi.
-                return APIResults<bool>.Failure("Error: " + ex.Message);
+                throw;
             }
         }
 
@@ -98,10 +98,10 @@ namespace ZenOS.BLL.Services
                     return APIResults<bool>.Failure(Messages.UpdateFailure);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 await transaction.RollbackAsync(); // Hủy bỏ toàn bộ các thay đổi trong giao dịch khi xảy ra lỗi.
-                return APIResults<bool>.Failure("Error: " + ex.Message);
+                throw;
             }
         }
 
@@ -219,18 +219,22 @@ namespace ZenOS.BLL.Services
             // Map từ Model sang Entity và gắn UserId để Audit
             DataHelpers.MapListAudit<TModel, TEntity>(listModel, listEntity, _currentUser.UserId);
 
-            // Tắt theo dõi thay đổi để tăng tốc độ nạp dữ liệu
-            _context.ChangeTracker.AutoDetectChangesEnabled = false;
+            try
+            {
+                // Tắt theo dõi thay đổi để tăng tốc độ nạp dữ liệu
+                _context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-            await _dbSet.AddRangeAsync(listEntity);
-            var result = await _context.SaveChangesAsync();
+                await _dbSet.AddRangeAsync(listEntity);
+                var result = await _context.SaveChangesAsync();
 
-            // Bật lại hoặc Clear tracker
-            _context.ChangeTracker.Clear();
-
-            return result > 0
-                ? APIResults<bool>.Success(true, Messages.ImportSuccess)
-                : APIResults<bool>.Failure(Messages.ImportFailure);
+                return result > 0
+                    ? APIResults<bool>.Success(true, Messages.ImportSuccess)
+                    : APIResults<bool>.Failure(Messages.ImportFailure);
+            }
+            finally
+            {  // Bật lại hoặc Clear tracker
+                _context.ChangeTracker.Clear();
+            }
         }
     }
 }

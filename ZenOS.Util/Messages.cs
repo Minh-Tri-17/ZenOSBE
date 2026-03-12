@@ -6,7 +6,6 @@
 
         public const string NotFoundUpdate = "NotFoundUpdate";
         public const string NotFoundGet = "NotFoundGet";
-        public const string NotFoundGetList = "NotFoundGetList";
         public const string CreateSuccess = "CreateSuccess";
         public const string UpdateSuccess = "UpdateSuccess";
         public const string DeleteSuccess = "DeleteSuccess";
@@ -21,7 +20,7 @@
         public const string SendMailFailure = "SendMailFailure";
         public const string GetListResultSuccess = "GetListResultSuccess";
         public const string GetResultSuccess = "GetResultSuccess";
-        public const string ErrorCallAPI = "ErrorCallAPI";
+        public const string InternalServerError = "InternalServerError";
 
         #endregion
 
@@ -29,9 +28,8 @@
 
         public const string AuthSuccess = "AuthSuccess";
         public const string AuthFailure = "AuthFailure";
-        public const string UserNameNotExist = "UserNameNotExist";
+        public const string InvalidUsernameOrPassword = "InvalidUsernameOrPassword";
         public const string TokenKeyNotConfigured = "TokenKeyNotConfigured";
-        public const string UserNameOrPasswordIncorrect = "UserNameOrPasswordIncorrect";
         public const string ResetPasswordFailure = "ResetPasswordFailure";
         public const string ResetPasswordSuccess = "ResetPasswordSuccess";
         public const string RequiredLength = "RequiredLength";

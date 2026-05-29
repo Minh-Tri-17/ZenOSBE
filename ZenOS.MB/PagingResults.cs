@@ -6,7 +6,9 @@
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
         public int TotalRecord { get; set; }
-        public int PageRecord => Items?.Count ?? 0;
+        public int FromRecord => TotalRecord == 0 ? 0 : (PageIndex - 1) * PageSize + 1;
+        public int ToRecord => Math.Min(PageIndex * PageSize, TotalRecord);
+        public string RecordRange => $"{FromRecord} - {ToRecord}";
         public int PageCount
         {
             get

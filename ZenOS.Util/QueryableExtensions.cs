@@ -102,7 +102,9 @@ namespace ZenOS.Util
         {
             if (filter.AllowPaging)
             {
-                query = query.Skip((filter.PageIndex - 1) * filter.PageSize).Take(filter.PageSize);
+                int skipCount = Math.Max(0, (filter.PageIndex - 1) * filter.PageSize);
+
+                query = query.Skip(skipCount).Take(filter.PageSize);
             }
 
             return query;

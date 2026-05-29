@@ -21,7 +21,12 @@ namespace ZenOS.BLL.Services
 
         #region Default Operations
 
-        public Task<APIResults<bool>> CreateOrEdit(CodeSequenceModel request)
+        public Task<APIResults<bool>> Create(CodeSequenceModel request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<APIResults<bool>> Update(CodeSequenceModel request)
         {
             throw new NotImplementedException();
         }

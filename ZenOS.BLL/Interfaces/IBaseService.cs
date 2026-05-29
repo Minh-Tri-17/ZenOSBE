@@ -12,7 +12,7 @@ namespace ZenOS.BLL.Interfaces
         Task<APIResults<bool>> Delete(string ids);
         Task<APIResults<bool>> DeletePermanently(string ids);
         Task<APIResults<bool>> Create(TModel request);
-        Task<APIResults<bool>> Edit(TModel request);
+        Task<APIResults<bool>> Update(TModel request);
         Task<APIResults<byte[]>> Export(FilterModel filter);
         Task<APIResults<bool>> Import(IFormFile fileImport);
     }

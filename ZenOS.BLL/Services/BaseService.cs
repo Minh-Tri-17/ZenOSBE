@@ -64,7 +64,7 @@ namespace ZenOS.BLL.Services
             }
         }
 
-        public virtual async Task<APIResults<bool>> Edit(TModel request)
+        public virtual async Task<APIResults<bool>> Update(TModel request)
         {
             // 1. Lấy Id từ request bằng dynamic để tránh lỗi biên dịch do TModel chưa xác định có Id hay không
             var requestId = (request as dynamic)?.Id?.ToString();

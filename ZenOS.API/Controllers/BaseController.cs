@@ -33,13 +33,13 @@ namespace ZenOS.API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPatch(nameof(Edit))]
-        public virtual async Task<ActionResult> Edit(TModel model)
+        [HttpPatch(nameof(Update))]
+        public virtual async Task<ActionResult> Update(TModel model)
         {
             if (model == null)
                 return BadRequest();
 
-            var result = await _service.Edit(model);
+            var result = await _service.Update(model);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -47,6 +47,13 @@ namespace ZenOS.API.Controllers
         public virtual async Task<ActionResult> Delete(string ids)
         {
             var result = await _service.Delete(ids);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpDelete(nameof(DeletePermanently))]
+        public virtual async Task<ActionResult> DeletePermanently(string ids)
+        {
+            var result = await _service.DeletePermanently(ids);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -72,6 +79,21 @@ namespace ZenOS.API.Controllers
 
             var result = await _service.Import(file);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost(nameof(Export))]
+        public async Task<ActionResult<APIResults<byte[]>>> Export(FilterModel filter)
+        {
+            var result = await _service.Export(filter);
+
+            if (!result.IsSuccess || result.Result == null)
+                return BadRequest(result);
+
+            return File(
+                result.Result,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "export.xlsx"
+            );
         }
     }
 }

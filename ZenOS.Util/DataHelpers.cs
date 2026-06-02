@@ -3,7 +3,7 @@ using ClosedXML.Excel;
 using NPOI.SS.UserModel;
 using System.Reflection;
 using System.Security.Cryptography;
-using ZenOS.MB;
+using ZenOS.DAL.Models;
 
 namespace ZenOS.Util
 {
@@ -113,22 +113,6 @@ namespace ZenOS.Util
             return false;
         }
 
-        public static bool ListIsNotNull<TResponse>(APIResults<PagingResults<TResponse>> response)
-        {
-            if (response != null && response.IsSuccess && response.Result != null && response.Result.Items != null)
-                return true;
-
-            return false;
-        }
-
-        public static bool IsNotNull<TResponse>(APIResults<TResponse> response)
-        {
-            if (response != null && response.IsSuccess && response.Result != null)
-                return true;
-
-            return false;
-        }
-
         #endregion
 
         #region Mapping data
@@ -148,7 +132,8 @@ namespace ZenOS.Util
 
             return _mapper.Map<TDestination>(source, opt =>
             {
-                opt.Items["IgnoreAuditFields"] = false; // Không tự sinh các thuộc tính audit
+                // Không bỏ qua các trường audit, cho phép AutoMapper map bình thường từ source sang destination
+                opt.Items["IgnoreAuditFields"] = false;
             });
         }
 
@@ -177,7 +162,8 @@ namespace ZenOS.Util
         /// <param name="source"></param>
         /// <param name="destination"></param>
         /// <param name="userName"></param>
-        public static void MapAudit<TSource, TDestination>(TSource source, TDestination destination, Guid? currentUser)
+        public static void MapAudit<TSource, TDestination>(TSource source, TDestination destination,
+            Guid? currentUser, ZenOsContext? context = null)
         {
             if (source == null || destination == null || _mapper == null)
                 return;
@@ -186,7 +172,8 @@ namespace ZenOS.Util
 
             _mapper.Map<TSource, TDestination>(source, destination, opt =>
             {
-                opt.Items["IgnoreAuditFields"] = true; // Bỏ qua các thuộc tính audit trong quá trình mapping
+                // Bỏ qua các trường audit khi map, tránh việc dữ liệu thô từ source đè mất logic tự sinh bên dưới
+                opt.Items["IgnoreAuditFields"] = true;
             });
 
             #region Handle auto-generated fields
@@ -205,18 +192,51 @@ namespace ZenOS.Util
 
                 // Sinh mã code tự động nếu là bản ghi mới và thuộc tính Code tồn tại
                 var tableName = GetTableName<TDestination>();
-                var codeProp = destinationProps.FirstOrDefault(p => p.Name == tableName + Constants.Code && p.PropertyType == typeof(string));
+                if (tableName != null && tableName.StartsWith("Cat"))
+                {
+                    tableName = tableName.Substring(3);
+                }
+                var codeProp = destinationProps.FirstOrDefault(p => p.Name == $"{tableName}{Constants.Code}" && p.PropertyType == typeof(string));
                 if (codeProp != null)
                 {
                     var codeValue = codeProp.GetValue(destination) as string;
                     if (string.IsNullOrEmpty(codeValue))
                     {
-                        // Tạo mã code tự động dựa trên tên bảng và một số ngẫu nhiên
-                        string prefix = tableName.Substring(0, 2).ToUpperInvariant();
-                        string randomNumber = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
-                        string timestamp = DateTime.Now.ToString(Constants.DateTimeString);
-                        string generatedCode = $"{prefix}{randomNumber}{timestamp}";
-                        codeProp.SetValue(destination, generatedCode);
+                        if (context != null)
+                        {
+                            var sequence = context.CodeSequences.Local.FirstOrDefault(s => s.EntityName == tableName)
+                                ?? context.CodeSequences.FirstOrDefault(s => s.EntityName == tableName);
+                            if (sequence == null)
+                            {
+                                string prefix = tableName.Substring(0, Math.Min(3, tableName.Length)).ToUpperInvariant();
+
+                                sequence = new CodeSequence
+                                {
+                                    Id = Guid.NewGuid(),
+                                    EntityName = tableName,
+                                    Prefix = prefix,
+                                    EntityValue = 1
+                                };
+
+                                context.CodeSequences.Add(sequence);
+                            }
+                            else
+                            {
+                                sequence.EntityValue = (sequence.EntityValue ?? 0) + 1;
+                            }
+
+                            string generatedCode = $"{sequence.Prefix}{sequence.EntityValue.GetValueOrDefault().ToString("D6")}";
+                            codeProp.SetValue(destination, generatedCode);
+                        }
+                        else
+                        {
+                            // Fallback: Tạo mã code tự động dựa trên tên bảng và một số ngẫu nhiên
+                            string prefix = tableName.Substring(0, 2).ToUpperInvariant();
+                            string randomNumber = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
+                            string timestamp = DateTime.Now.ToString(Constants.DateTimeString);
+                            string generatedCode = $"{prefix}{randomNumber}{timestamp}";
+                            codeProp.SetValue(destination, generatedCode);
+                        }
                     }
                 }
 
@@ -252,7 +272,8 @@ namespace ZenOS.Util
         /// <param name="sourceList"></param>
         /// <param name="destinationList"></param>
         /// <param name="userName"></param>
-        public static void MapListAudit<TSource, TDestination>(List<TSource> sourceList, List<TDestination> destinationList, Guid? userId) where TDestination : new()
+        public static void MapListAudit<TSource, TDestination>(List<TSource> sourceList, List<TDestination> destinationList,
+            Guid? userId, ZenOsContext? context = null) where TDestination : new()
         {
             if (sourceList == null || destinationList == null)
                 return;
@@ -273,12 +294,12 @@ namespace ZenOS.Util
                 if (destination == null)
                 {
                     destination = new TDestination();
-                    MapAudit(source, destination, userId);
+                    MapAudit(source, destination, userId, context);
                     destinationList.Add(destination);
                 }
                 else
                 {
-                    MapAudit(source, destination, userId);
+                    MapAudit(source, destination, userId, context);
                 }
             }
         }

@@ -389,9 +389,9 @@ namespace ZenOS.MB
 
     public class FilterModel
     {
-        public bool AllowPaging = true;
-        public int PageIndex = 1;
-        public int PageSize = 20;
+        public bool AllowPaging { get; set; } = true;
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
         public Guid? IdMain { get; set; }
         public List<FilterItemModel> Filters { get; set; } = new List<FilterItemModel>();
     }

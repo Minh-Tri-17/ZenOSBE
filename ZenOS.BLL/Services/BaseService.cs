@@ -38,7 +38,7 @@ namespace ZenOS.BLL.Services
                 await BeforeSaveAsync(request, entity, true);
 
                 // Map dữ liệu từ request sang entity và gắn Audit (UserId, CreatedAt...)
-                DataHelpers.MapAudit(request, entity, _currentUser.UserId);
+                DataHelpers.MapAudit(request, entity, _currentUser.UserId, _context);
 
                 await _dbSet.AddAsync(entity);
 
@@ -81,7 +81,7 @@ namespace ZenOS.BLL.Services
                 await BeforeSaveAsync(request, entity, false);
 
                 // Map đè dữ liệu mới từ request vào entity đang theo dõi (Tracking)
-                DataHelpers.MapAudit(request, entity, _currentUser.UserId);
+                DataHelpers.MapAudit(request, entity, _currentUser.UserId, _context);
 
                 await AfterSaveAsync(request, entity);
 
@@ -217,7 +217,7 @@ namespace ZenOS.BLL.Services
 
             var listEntity = new List<TEntity>();
             // Map từ Model sang Entity và gắn UserId để Audit
-            DataHelpers.MapListAudit<TModel, TEntity>(listModel, listEntity, _currentUser.UserId);
+            DataHelpers.MapListAudit<TModel, TEntity>(listModel, listEntity, _currentUser.UserId, _context);
 
             try
             {

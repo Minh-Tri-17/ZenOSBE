@@ -4,6 +4,40 @@ using ZenOS.DAL.Models;
 
 namespace ZenOS.MB
 {
+    #region Model base
+
+    public class MailModel
+    {
+        [Required]
+        public string? To { get; set; }
+        [Required]
+        public string? Subject { get; set; }
+        [Required]
+        public string? Body { get; set; }
+        public List<string> CC { get; set; } = new List<string>();
+        public List<string> BCC { get; set; } = new List<string>();
+        public List<IFormFile>? Attachments { get; set; }
+    }
+
+    public class FilterModel
+    {
+        public bool AllowPaging { get; set; } = true;
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public Guid? IdMain { get; set; }
+        public List<FilterItemModel> Filters { get; set; } = new List<FilterItemModel>();
+    }
+
+    public class FilterItemModel
+    {
+        public string? FilterName { get; set; }
+        public string? FilterValue { get; set; }
+        public string? FilterType { get; set; }
+        public string? FilterOperator { get; set; }
+    }
+
+    #endregion
+
     #region Model database
 
     public partial class AppointmentModel : Appointment
@@ -373,34 +407,4 @@ namespace ZenOS.MB
     }
 
     #endregion
-
-    public class MailModel
-    {
-        [Required]
-        public string? To { get; set; }
-        [Required]
-        public string? Subject { get; set; }
-        [Required]
-        public string? Body { get; set; }
-        public List<string> CC { get; set; } = new List<string>();
-        public List<string> BCC { get; set; } = new List<string>();
-        public List<IFormFile>? Attachments { get; set; }
-    }
-
-    public class FilterModel
-    {
-        public bool AllowPaging { get; set; } = true;
-        public int PageIndex { get; set; } = 1;
-        public int PageSize { get; set; } = 20;
-        public Guid? IdMain { get; set; }
-        public List<FilterItemModel> Filters { get; set; } = new List<FilterItemModel>();
-    }
-
-    public class FilterItemModel
-    {
-        public string? FilterName { get; set; }
-        public string? FilterValue { get; set; }
-        public string? FilterType { get; set; }
-        public string? FilterOperator { get; set; }
-    }
 }

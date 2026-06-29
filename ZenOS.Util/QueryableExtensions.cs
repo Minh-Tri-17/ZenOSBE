@@ -116,13 +116,53 @@ namespace ZenOS.Util
         /// <typeparam name="T"></typeparam>
         /// <param name="query"></param>
         /// <returns></returns>
-        public static IQueryable<T> ApplySoftDelete<T>(this IQueryable<T> query)
+        public static IQueryable<T> ApplySoftDelete<T>(this IQueryable<T> query, FilterModel filter)
         {
             var prop = typeof(T).GetProperty(Constants.IsDelete);
 
             if (prop != null)
             {
-                return query.Where(x => EF.Property<bool?>(x!, Constants.IsDelete) != true);
+                bool isDeleted = DataHelpers.GetBool(filter.Filters.FirstOrDefault(s =>
+                    s.FilterName == Constants.IsDelete)?.FilterValue);
+
+                if (isDeleted)
+                {
+                    return query.Where(s => EF.Property<bool?>(s!, Constants.IsDelete) == true);
+                }
+                else
+                {
+                    return query.Where(s => EF.Property<bool?>(s!, Constants.IsDelete) != true);
+                }
+            }
+
+            return query;
+        }
+
+        /// <summary>
+        /// Tự động kiểm tra và sắp xếp lại các bản ghi 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public static IQueryable<T> ApplySort<T>(this IQueryable<T> query)
+        {
+            var propUAt = typeof(T).GetProperty(Constants.UpdatedAt);
+            var propCAt = typeof(T).GetProperty(Constants.CreatedAt);
+
+            if (propUAt != null && propCAt != null)
+            {
+                return query.OrderByDescending(s =>
+                    EF.Property<DateTime?>(s!, Constants.UpdatedAt) ?? EF.Property<DateTime>(s!, Constants.CreatedAt));
+            }
+
+            if (propUAt != null)
+            {
+                return query.OrderByDescending(s => EF.Property<DateTime?>(s!, Constants.UpdatedAt));
+            }
+
+            if (propCAt != null)
+            {
+                return query.OrderByDescending(s => EF.Property<DateTime?>(s!, Constants.CreatedAt));
             }
 
             return query;

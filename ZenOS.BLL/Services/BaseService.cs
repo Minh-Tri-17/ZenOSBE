@@ -109,7 +109,7 @@ namespace ZenOS.BLL.Services
 
         protected virtual Task AfterSaveAsync(TModel request, TEntity entity) => Task.CompletedTask;
 
-        public virtual async Task<APIResults<bool>> Delete(string ids)
+        public virtual async Task<APIResults<bool>> SoftDelete(string ids)
         {
             var listIds = ids.Split(',').Select(id => DataHelpers.GetGuid(id)).ToList();
             var result = await _dbSet
@@ -121,7 +121,7 @@ namespace ZenOS.BLL.Services
                 : APIResults<bool>.Failure(Messages.DeleteFailure);
         }
 
-        public virtual async Task<APIResults<bool>> DeletePermanently(string ids)
+        public virtual async Task<APIResults<bool>> HardDelete(string ids)
         {
             var listIds = ids.Split(',').Select(id => DataHelpers.GetGuid(id)).ToList();
             var result = await _dbSet
@@ -146,13 +146,14 @@ namespace ZenOS.BLL.Services
         public virtual async Task<APIResults<PagingResults<TModel>>> GetPaging(FilterModel filter)
         {
             IQueryable<TEntity> query = _dbSet.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
-                .ApplySoftDelete()
+                .ApplySort()
+                .ApplySoftDelete(filter)
                 .ApplyCommonFilters(filter);
 
             var totalCount = await query.CountAsync();
             query = query.ApplyPaging(filter);
 
-            var list = await query.OrderByDescending(s => s.UpdatedAt ?? s.CreatedAt).ToListAsync();
+            var list = await query.ToListAsync();
             var listModel = DataHelpers.MappingList<TEntity, TModel>(list);
 
             var pageResult = new PagingResults<TModel>

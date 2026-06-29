@@ -43,17 +43,17 @@ namespace ZenOS.API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpDelete(nameof(Delete))]
-        public virtual async Task<ActionResult> Delete(string ids)
+        [HttpDelete(nameof(SoftDelete))]
+        public virtual async Task<ActionResult> SoftDelete(string ids)
         {
-            var result = await _service.Delete(ids);
+            var result = await _service.SoftDelete(ids);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpDelete(nameof(DeletePermanently))]
-        public virtual async Task<ActionResult> DeletePermanently(string ids)
+        [HttpDelete(nameof(HardDelete))]
+        public virtual async Task<ActionResult> HardDelete(string ids)
         {
-            var result = await _service.DeletePermanently(ids);
+            var result = await _service.HardDelete(ids);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 

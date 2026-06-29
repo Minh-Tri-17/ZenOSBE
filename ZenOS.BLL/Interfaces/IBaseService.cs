@@ -9,8 +9,8 @@ namespace ZenOS.BLL.Interfaces
     {
         Task<APIResults<PagingResults<TModel>>> GetPaging(FilterModel filter);
         Task<APIResults<TModel>> GetOne(Guid id);
-        Task<APIResults<bool>> Delete(string ids);
-        Task<APIResults<bool>> DeletePermanently(string ids);
+        Task<APIResults<bool>> SoftDelete(string ids);
+        Task<APIResults<bool>> HardDelete(string ids);
         Task<APIResults<bool>> Create(TModel request);
         Task<APIResults<bool>> Update(TModel request);
         Task<APIResults<byte[]>> Export(FilterModel filter);

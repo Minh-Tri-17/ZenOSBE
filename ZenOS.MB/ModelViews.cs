@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
 using ZenOS.DAL.Models;
 
 namespace ZenOS.MB
@@ -8,11 +7,8 @@ namespace ZenOS.MB
 
     public class MailModel
     {
-        [Required]
         public string? To { get; set; }
-        [Required]
         public string? Subject { get; set; }
-        [Required]
         public string? Body { get; set; }
         public List<string> CC { get; set; } = new List<string>();
         public List<string> BCC { get; set; } = new List<string>();
@@ -333,7 +329,6 @@ namespace ZenOS.MB
     public partial class UserModel : User
     {
         public bool Remember { get; set; } = false;
-        [Required]
         public string? Password { get; set; }
         public string? RoleIds { get; set; }
     }

@@ -29,6 +29,9 @@ namespace ZenOS.BLL.Services
 
         public virtual async Task<APIResults<bool>> Create(TModel request)
         {
+            if (request == null)
+                return APIResults<bool>.Failure(Messages.UpdateFailure);
+
             // Bắt đầu một giao dịch mới để nhóm các thao tác cơ sở dữ liệu lại với nhau.
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -66,6 +69,9 @@ namespace ZenOS.BLL.Services
 
         public virtual async Task<APIResults<bool>> Update(TModel request)
         {
+            if (request == null)
+                return APIResults<bool>.Failure(Messages.UpdateFailure);
+
             // 1. Lấy Id từ request bằng dynamic để tránh lỗi biên dịch do TModel chưa xác định có Id hay không
             var requestId = (request as dynamic)?.Id?.ToString();
             var id = DataHelpers.GetGuid(requestId);
@@ -193,7 +199,7 @@ namespace ZenOS.BLL.Services
         public virtual async Task<APIResults<bool>> Import(IFormFile fileImport)
         {
             if (fileImport == null || fileImport.Length <= 0)
-                return APIResults<bool>.Failure(Messages.ImportFailure);
+                return APIResults<bool>.Failure(Constants.FileNotFound);
 
             using var stream = new MemoryStream();
             await fileImport.CopyToAsync(stream);

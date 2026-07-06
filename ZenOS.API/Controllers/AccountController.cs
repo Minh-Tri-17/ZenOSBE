@@ -29,42 +29,21 @@ namespace ZenOS.API.Controllers
         [HttpPost(nameof(Authentication))]
         public async Task<ActionResult<User>> Authentication([FromBody] UserModel user)
         {
-            if (user == null)
-                return BadRequest();
-
             var result = await _accountService.Auth(user);
-
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
             return Ok(result);
         }
 
         [HttpPost(nameof(SendOTP))]
         public async Task<ActionResult<APIResults<bool>>> SendOTP([FromBody] MailModel mail)
         {
-            if (mail == null)
-                return BadRequest();
-
             var result = await _accountService.SendOTP(mail);
-
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
             return Ok(result);
         }
 
         [HttpPatch(nameof(ResetPassword))]
         public async Task<ActionResult<APIResults<bool>>> ResetPassword([FromBody] UserModel user)
         {
-            if (user == null)
-                return BadRequest();
-
             var result = await _accountService.ResetPassword(user);
-
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
             return Ok(result);
         }
 

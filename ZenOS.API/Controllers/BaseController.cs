@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ZenOS.BLL.Interfaces;
 using ZenOS.MB;
-using ZenOS.Util;
 
 namespace ZenOS.API.Controllers
 {
@@ -26,59 +25,50 @@ namespace ZenOS.API.Controllers
         [HttpPost(nameof(Create))]
         public virtual async Task<ActionResult> Create(TModel model)
         {
-            if (model == null)
-                return BadRequest();
-
             var result = await _service.Create(model);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPatch(nameof(Update))]
         public virtual async Task<ActionResult> Update(TModel model)
         {
-            if (model == null)
-                return BadRequest();
-
             var result = await _service.Update(model);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete(nameof(SoftDelete))]
         public virtual async Task<ActionResult> SoftDelete(string ids)
         {
             var result = await _service.SoftDelete(ids);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete(nameof(HardDelete))]
         public virtual async Task<ActionResult> HardDelete(string ids)
         {
             var result = await _service.HardDelete(ids);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpGet($"{nameof(GetOne)}/{{id}}")]
         public virtual async Task<ActionResult> GetOne(Guid id)
         {
             var result = await _service.GetOne(id);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPost($"{nameof(GetPaging)}/Filter")]
         public virtual async Task<ActionResult> GetPaging(FilterModel filter)
         {
             var result = await _service.GetPaging(filter);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPost(nameof(Import))]
         public virtual async Task<ActionResult> Import(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest(Constants.FileNotFound);
-
             var result = await _service.Import(file);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPost(nameof(Export))]
@@ -87,7 +77,7 @@ namespace ZenOS.API.Controllers
             var result = await _service.Export(filter);
 
             if (!result.IsSuccess || result.Result == null)
-                return BadRequest(result);
+                return Ok(result);
 
             return File(
                 result.Result,

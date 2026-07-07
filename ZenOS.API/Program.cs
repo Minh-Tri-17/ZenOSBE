@@ -8,7 +8,6 @@ using Microsoft.OpenApi;
 using Serilog;
 using Serilog.Events;
 using ZenOS.API.Middleware;
-using ZenOS.BLL.Interfaces;
 using ZenOS.BLL.Services;
 using ZenOS.DAL.Models;
 using ZenOS.Util;
@@ -19,75 +18,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region DI
 
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-builder.Services.AddScoped<IApprovalActionService, ApprovalActionService>();
-builder.Services.AddScoped<IApprovalFlowService, ApprovalFlowService>();
-builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
-builder.Services.AddScoped<IApprovalStepService, ApprovalStepService>();
-builder.Services.AddScoped<IApprovalStepAssignmentService, ApprovalStepAssignmentService>();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<ICatContractTypeService, CatContractTypeService>();
-builder.Services.AddScoped<ICatCountryService, CatCountryService>();
-builder.Services.AddScoped<ICatDepartmentService, CatDepartmentService>();
-builder.Services.AddScoped<ICatIngredientCategoryService, CatIngredientCategoryService>();
-builder.Services.AddScoped<ICatJobTitleService, CatJobTitleService>();
-builder.Services.AddScoped<ICatLeaveTypeService, CatLeaveTypeService>();
-builder.Services.AddScoped<ICatMembershipLevelService, CatMembershipLevelService>();
-builder.Services.AddScoped<ICatProductCategoryService, CatProductCategoryService>();
-builder.Services.AddScoped<ICatProvinceService, CatProvinceService>();
-builder.Services.AddScoped<ICatSupplierCategoryService, CatSupplierCategoryService>();
-builder.Services.AddScoped<ICatUnitService, CatUnitService>();
-builder.Services.AddScoped<ICatWardService, CatWardService>();
-builder.Services.AddScoped<ICodeSequenceService, CodeSequenceService>();
-builder.Services.AddScoped<IComboService, ComboService>();
-builder.Services.AddScoped<IComboItemService, ComboItemService>();
-builder.Services.AddScoped<IContractService, ContractService>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<IIngredientService, IngredientService>();
-builder.Services.AddScoped<IInventoryStockService, InventoryStockService>();
-builder.Services.AddScoped<IInventoryTransactionService, InventoryTransactionService>();
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
-builder.Services.AddScoped<IMailHistoryService, MailHistoryService>();
-builder.Services.AddScoped<IMailTemplateService, MailTemplateService>();
-builder.Services.AddScoped<INotificationHistoryService, NotificationHistoryService>();
-builder.Services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-builder.Services.AddScoped<IOrderItemToppingService, OrderItemToppingService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPayrollService, PayrollService>();
-builder.Services.AddScoped<IPayrollItemService, PayrollItemService>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IPromotionService, PromotionService>();
-builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
-builder.Services.AddScoped<IPurchaseOrderItemService, PurchaseOrderItemService>();
-builder.Services.AddScoped<IRecipeService, RecipeService>();
-builder.Services.AddScoped<IRecipeItemService, RecipeItemService>();
-builder.Services.AddScoped<IRefundService, RefundService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
-builder.Services.AddScoped<IRosterService, RosterService>();
-builder.Services.AddScoped<ISalaryStructureService, SalaryStructureService>();
-builder.Services.AddScoped<IShiftService, ShiftService>();
-builder.Services.AddScoped<IStoreService, StoreService>();
-builder.Services.AddScoped<IStoreSettingService, StoreSettingService>();
-builder.Services.AddScoped<ISupplierService, SupplierService>();
-builder.Services.AddScoped<ISystemSettingService, SystemSettingService>();
-builder.Services.AddScoped<ITableService, TableService>();
-builder.Services.AddScoped<ITimeLogService, TimeLogService>();
-builder.Services.AddScoped<IToppingService, ToppingService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddScoped<DevUserSeeder>();
+
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<AccountService>() // Định vị Assembly (file .dll) chứa lớp AccountService (tức là toàn bộ project ZenOS.BLL)
+    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+    .AsImplementedInterfaces() // Tự động bắt cặp Class đó với Interface tương ứng mà nó kế thừa
+    .WithScopedLifetime()); // Đăng ký với vòng đời là Scoped
 
 #endregion
 
 // Cung cấp khả năng truy cập thông tin HTTP Context
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+// Cấu hình dịch vụ gửi Email
 builder.Services.AddSingleton<MailHelpers>(new MailHelpers(builder.Configuration));
 
 // Cấu hình kết nối cơ sở dữ liệu SQL Server thông qua Entity Framework Core

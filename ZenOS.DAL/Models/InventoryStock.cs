@@ -30,7 +30,7 @@ public partial class InventoryStock
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? AverageCost { get; set; }
 
-    public int? RowVersion { get; set; }
+    public byte[]? RowVersion { get; set; }
 
     public bool? IsActive { get; set; }
 

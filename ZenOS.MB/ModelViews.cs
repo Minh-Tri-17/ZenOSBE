@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 using ZenOS.DAL.Models;
 
 namespace ZenOS.MB
@@ -329,6 +330,7 @@ namespace ZenOS.MB
     public partial class UserModel : User
     {
         public bool Remember { get; set; } = false;
+        [Required]
         public string? Password { get; set; }
         public string? RoleIds { get; set; }
     }

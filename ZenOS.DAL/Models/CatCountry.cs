@@ -17,7 +17,7 @@ public partial class CatCountry
     public string? CountryCode { get; set; }
 
     [StringLength(250)]
-    public string? CountryName { get; set; }
+    public string CountryName { get; set; } = null!;
 
     public bool? IsDelete { get; set; }
 

@@ -353,6 +353,9 @@ public partial class ZenOsContext : DbContext
         modelBuilder.Entity<InventoryStock>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.RowVersion)
+                .IsRowVersion()
+                .IsConcurrencyToken();
 
             entity.HasOne(d => d.Ingredient).WithMany(p => p.InventoryStocks).HasConstraintName("FK_InventoryStocks_Ingredients");
 

@@ -28,6 +28,10 @@
 
         public const string AuthSuccess = "AuthSuccess";
         public const string AuthFailure = "AuthFailure";
+        public const string OTPNotFound = "OTPNotFound";
+        public const string OTPExpired = "OTPExpired";
+        public const string OTPNoAttemptsLeft = "OTPNoAttemptsLeft";
+        public const string OTPIncorrect = "OTPIncorrect";
         public const string InvalidUsernameOrPassword = "InvalidUsernameOrPassword";
         public const string TokenKeyNotConfigured = "TokenKeyNotConfigured";
         public const string ResetPasswordFailure = "ResetPasswordFailure";

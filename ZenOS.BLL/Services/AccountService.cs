@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using ZenOS.BLL.Interfaces;
 using ZenOS.DAL.Models;
@@ -20,6 +22,7 @@ namespace ZenOS.BLL.Services
         private readonly ZenOsContext _context;
         private readonly IConfiguration _config;
         private readonly IdentityOptions _options;
+        private static readonly ConcurrentDictionary<string, object> otpStore = new ConcurrentDictionary<string, object>();
 
         public AccountService(ZenOsContext context, IConfiguration config, IOptions<IdentityOptions> options)
         {
@@ -106,6 +109,10 @@ namespace ZenOS.BLL.Services
             var password = DataHelpers.GetString(request.Password);
             var passwordHashed = PasswordHasher.HashPassword(password);
 
+            var validateMessage = ValidateOtp(DataHelpers.GetString(request.Email), DataHelpers.GetString(request.Otp));
+            if (!string.IsNullOrEmpty(validateMessage))
+                return APIResults<bool>.Failure(validateMessage);
+
             var user = await _context.Users.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
                 .FirstOrDefaultAsync(s => s.Username == username
                && s.PhoneNumber == phoneNumber && s.Email == mail);
@@ -134,11 +141,80 @@ namespace ZenOS.BLL.Services
 
         public async Task<APIResults<bool>> SendOTP(MailModel mail)
         {
+            var otpString = GenerateOtp(DataHelpers.GetString(mail.To));
+            mail.Subject = "SendOTP";
+            mail.Body = otpString;
+
             var result = await MailHelpers.SendMail(mail);
 
             return result
                 ? APIResults<bool>.Success(true, Messages.SendMailSuccess)
                 : APIResults<bool>.Failure(Messages.SendMailFailure);
+        }
+
+        private string ValidateOtp(string email, string otp)
+        {
+            if (!otpStore.TryGetValue(email, out var entryObj))
+                return Messages.OTPNotFound;
+
+            var entry = (dynamic)entryObj;
+
+            // Kiểm tra hết hạn
+            if (DateTime.UtcNow > entry.ExpiresAt)
+            {
+                otpStore.TryRemove(email, out _);
+                return Messages.OTPExpired;
+            }
+
+            // Kiểm tra số lần thử còn lại
+            if (entry.AttemptsLeft <= 0)
+            {
+                otpStore.TryRemove(email, out _);
+                return Messages.OTPNoAttemptsLeft;
+            }
+
+            // Hash OTP nhập để so sánh
+            using var sha = SHA256.Create();
+            var hashInput = sha.ComputeHash(Encoding.UTF8.GetBytes(otp + entry.Salt));
+            var hashInputString = Convert.ToBase64String(hashInput);
+
+            if (hashInputString != entry.Hashed)
+            {
+                entry.AttemptsLeft--;
+                otpStore[email] = entry; // cập nhật số lần thử
+                return Messages.OTPIncorrect;
+            }
+
+            // OTP đúng → remove khỏi store
+            otpStore.TryRemove(email, out _);
+
+            return string.Empty;
+        }
+
+        private string GenerateOtp(string email)
+        {
+            // 1. Sinh OTP 6 chữ số an toàn
+            byte[] rngBytes = new byte[4];
+            RandomNumberGenerator.Fill(rngBytes);
+            var otp = BitConverter.ToUInt32(rngBytes, 0) % 1000000;
+            var otpString = otp.ToString("D6");
+
+            // 2. Tạo salt + hash OTP
+            var salt = Guid.NewGuid().ToString();
+            using var sha = SHA256.Create();
+            var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(otpString + salt));
+            var hashed = Convert.ToBase64String(hashBytes);
+
+            // 3. Lưu vào store tạm
+            otpStore[email] = new
+            {
+                Hashed = hashed,
+                Salt = salt,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                AttemptsLeft = 3
+            };
+
+            return otpString;
         }
 
         public List<IdentityError> ValidatePassword(string password)

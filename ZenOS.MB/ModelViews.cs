@@ -8,6 +8,7 @@ namespace ZenOS.MB
 
     public class MailModel
     {
+        [Required]
         public string? To { get; set; }
         public string? Subject { get; set; }
         public string? Body { get; set; }
@@ -333,6 +334,7 @@ namespace ZenOS.MB
         [Required]
         public string? Password { get; set; }
         public string? RoleIds { get; set; }
+        public string? Otp { get; set; }
     }
 
     public partial class UserRoleModel : UserRole

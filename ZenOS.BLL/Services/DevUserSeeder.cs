@@ -5,7 +5,7 @@ namespace ZenOS.BLL.Services
 {
     public class DevUserSeeder
     {
-        private readonly ZenOsContext _context;
+        private readonly ZenOsContext _context; // Dùng để truy cập vào DbContext
 
         public DevUserSeeder(ZenOsContext context)
         {

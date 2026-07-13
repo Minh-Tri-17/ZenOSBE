@@ -2,11 +2,16 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
 using Serilog.Events;
+using System.Globalization;
+using ZenOS.API;
 using ZenOS.API.Middleware;
 using ZenOS.BLL.Services;
 using ZenOS.DAL.Models;
@@ -54,8 +59,6 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 209715200; // 200 MB
 });
 
-builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
 
 // Cấu hình giới hạn kích thước nhận dữ liệu ở tầng Web Server (Kestrel)
@@ -70,6 +73,17 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
+
+// Cấu hình các thiết lập cho hệ thống định danh (Identity)
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequiredUniqueChars = 5;
+});
 
 #endregion
 
@@ -148,25 +162,19 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
-// Cấu hình các thiết lập cho hệ thống định danh (Identity)
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequiredUniqueChars = 5;
-});
-
 #endregion
 
 #region Packages
 
+#region AutoMapper
+
 // Cấu hình AutoMapper bằng cách đăng ký trực tiếp lớp MappingProfiles vào hệ thống Dependency Injection.
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfiles>());
 
-// Ghi log
+#endregion
+
+#region Log
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     // Giảm log từ ASP.NET
@@ -186,6 +194,46 @@ builder.Host.UseSerilog();
 
 #endregion
 
+#region Localizer
+
+builder.Services.AddJsonLocalization(options =>
+{
+    options.ResourcesPath = new[] { "Resources" };
+});
+
+#endregion
+
+#endregion
+
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var localizer = context.HttpContext.RequestServices.GetRequiredService<IStringLocalizer<App>>();
+
+            var errors = context.ModelState
+                .Where(e => e.Value!.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors.Select(e =>
+                    {
+                        string originalError = e.ErrorMessage;
+
+                        if (originalError.Contains("is required", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return localizer[Messages.FieldIsRequired, localizer[kvp.Key].Value].Value;
+                        }
+
+                        return localizer[originalError].Value;
+                    }).ToArray()
+                );
+
+            return new BadRequestObjectResult(errors);
+        };
+    });
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -202,6 +250,19 @@ if (app.Environment.IsDevelopment())
         seeder.Seed();
     }
 }
+
+var cultures = new[]
+{
+    new CultureInfo("vi"),
+    new CultureInfo("en")
+};
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("vi"),
+    SupportedCultures = cultures,
+    SupportedUICultures = cultures
+});
 
 var mapper = app.Services.GetRequiredService<IMapper>();
 DataHelpers.ConfigureMapper(mapper);

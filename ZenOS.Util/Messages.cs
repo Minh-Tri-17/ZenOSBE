@@ -21,6 +21,7 @@
         public const string GetListResultSuccess = "GetListResultSuccess";
         public const string GetResultSuccess = "GetResultSuccess";
         public const string InternalServerError = "InternalServerError";
+        public const string FieldIsRequired = "FieldIsRequired";
 
         #endregion
 

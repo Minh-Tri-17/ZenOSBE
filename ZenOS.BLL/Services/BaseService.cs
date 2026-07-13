@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using NPOI.XSSF.UserModel;
 using ZenOS.BLL.Interfaces;
 using ZenOS.DAL;
@@ -16,21 +17,23 @@ namespace ZenOS.BLL.Services
         where TEntity : class, IBaseEntity, new()
         where TModel : class, new()
     {
-        protected readonly ZenOsContext _context;
-        protected readonly ICurrentUserService _currentUser;
-        protected readonly DbSet<TEntity> _dbSet;
+        protected readonly ZenOsContext _context; // Dùng để truy cập vào DbContext
+        protected readonly ICurrentUserService _currentUser; // Dùng để lấy thông tin người dùng hiện tại
+        protected readonly DbSet<TEntity> _dbSet; // Dùng để thao tác với tập thực thể
+        protected readonly IStringLocalizer _localizer; // Dùng để đa ngôn ngữ hóa thông báo
 
-        protected BaseService(ZenOsContext context, ICurrentUserService currentUser)
+        protected BaseService(ZenOsContext context, ICurrentUserService currentUser, IStringLocalizer localizer)
         {
             _context = context;
             _currentUser = currentUser;
+            _localizer = localizer;
             _dbSet = _context.Set<TEntity>();
         }
 
         public virtual async Task<APIResults<bool>> Create(TModel request)
         {
             if (request == null)
-                return APIResults<bool>.Failure(Messages.UpdateFailure);
+                return APIResults<bool>.Failure(_localizer[Messages.UpdateFailure]);
 
             // Bắt đầu một giao dịch mới để nhóm các thao tác cơ sở dữ liệu lại với nhau.
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -53,11 +56,11 @@ namespace ZenOS.BLL.Services
 
                 if (result > 0)
                 {
-                    return APIResults<bool>.Success(true, Messages.CreateSuccess);
+                    return APIResults<bool>.Success(true, _localizer[Messages.CreateSuccess]);
                 }
                 else
                 {
-                    return APIResults<bool>.Failure(Messages.CreateFailure);
+                    return APIResults<bool>.Failure(_localizer[Messages.CreateFailure]);
                 }
             }
             catch
@@ -70,7 +73,7 @@ namespace ZenOS.BLL.Services
         public virtual async Task<APIResults<bool>> Update(TModel request)
         {
             if (request == null)
-                return APIResults<bool>.Failure(Messages.UpdateFailure);
+                return APIResults<bool>.Failure(_localizer[Messages.UpdateFailure]);
 
             // 1. Lấy Id từ request bằng dynamic để tránh lỗi biên dịch do TModel chưa xác định có Id hay không
             var requestId = (request as dynamic)?.Id?.ToString();
@@ -82,7 +85,7 @@ namespace ZenOS.BLL.Services
             {
                 TEntity entity = await _dbSet.FindAsync(id);
                 if (entity == null)
-                    return APIResults<bool>.Failure(Messages.NotFoundUpdate);
+                    return APIResults<bool>.Failure(_localizer[Messages.NotFoundUpdate]);
 
                 await BeforeSaveAsync(request, entity, false);
 
@@ -97,11 +100,11 @@ namespace ZenOS.BLL.Services
 
                 if (result > 0)
                 {
-                    return APIResults<bool>.Success(true, Messages.UpdateSuccess);
+                    return APIResults<bool>.Success(true, _localizer[Messages.UpdateSuccess]);
                 }
                 else
                 {
-                    return APIResults<bool>.Failure(Messages.UpdateFailure);
+                    return APIResults<bool>.Failure(_localizer[Messages.UpdateFailure]);
                 }
             }
             catch
@@ -123,8 +126,8 @@ namespace ZenOS.BLL.Services
                 .ExecuteUpdateAsync(s => s.SetProperty(x => x.IsDelete, true));
 
             return result > 0
-                ? APIResults<bool>.Success(true, Messages.DeleteSuccess)
-                : APIResults<bool>.Failure(Messages.DeleteFailure);
+                ? APIResults<bool>.Success(true, _localizer[Messages.DeleteSuccess])
+                : APIResults<bool>.Failure(_localizer[Messages.DeleteFailure]);
         }
 
         public virtual async Task<APIResults<bool>> HardDelete(string ids)
@@ -135,18 +138,18 @@ namespace ZenOS.BLL.Services
                 .ExecuteDeleteAsync();
 
             return result > 0
-                ? APIResults<bool>.Success(true, Messages.DeleteSuccess)
-                : APIResults<bool>.Failure(Messages.DeleteFailure);
+                ? APIResults<bool>.Success(true, _localizer[Messages.DeleteSuccess])
+                : APIResults<bool>.Failure(_localizer[Messages.DeleteFailure]);
         }
 
         public virtual async Task<APIResults<TModel>> GetOne(Guid id)
         {
             var entity = await _dbSet.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
                 .FirstOrDefaultAsync(s => s.Id == id);
-            if (entity == null) return APIResults<TModel>.Failure(Messages.NotFoundGet);
+            if (entity == null) return APIResults<TModel>.Failure(_localizer[Messages.NotFoundGet]);
 
             var model = DataHelpers.Mapping<TEntity, TModel>(entity);
-            return APIResults<TModel>.Success(model, Messages.GetResultSuccess);
+            return APIResults<TModel>.Success(model, _localizer[Messages.GetResultSuccess]);
         }
 
         public virtual async Task<APIResults<PagingResults<TModel>>> GetPaging(FilterModel filter)
@@ -170,7 +173,7 @@ namespace ZenOS.BLL.Services
                 Items = listModel
             };
 
-            return APIResults<PagingResults<TModel>>.Success(pageResult, Messages.GetListResultSuccess);
+            return APIResults<PagingResults<TModel>>.Success(pageResult, _localizer[Messages.GetListResultSuccess]);
         }
 
         public virtual async Task<APIResults<byte[]>> Export(FilterModel filter)
@@ -192,8 +195,8 @@ namespace ZenOS.BLL.Services
             var bytes = stream.ToArray();
 
             return bytes.Length > 0
-                ? APIResults<byte[]>.Success(bytes, Messages.ExportSuccess)
-                : APIResults<byte[]>.Failure(Messages.ExportFailure);
+                ? APIResults<byte[]>.Success(bytes, _localizer[Messages.ExportSuccess])
+                : APIResults<byte[]>.Failure(_localizer[Messages.ExportFailure]);
         }
 
         public virtual async Task<APIResults<bool>> Import(IFormFile fileImport)
@@ -235,8 +238,8 @@ namespace ZenOS.BLL.Services
                 var result = await _context.SaveChangesAsync();
 
                 return result > 0
-                    ? APIResults<bool>.Success(true, Messages.ImportSuccess)
-                    : APIResults<bool>.Failure(Messages.ImportFailure);
+                    ? APIResults<bool>.Success(true, _localizer[Messages.ImportSuccess])
+                    : APIResults<bool>.Failure(_localizer[Messages.ImportFailure]);
             }
             finally
             {  // Bật lại hoặc Clear tracker

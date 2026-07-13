@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
@@ -19,15 +20,18 @@ namespace ZenOS.BLL.Services
     {
         #region Infrastructure
 
-        private readonly ZenOsContext _context;
-        private readonly IConfiguration _config;
-        private readonly IdentityOptions _options;
-        private static readonly ConcurrentDictionary<string, object> otpStore = new ConcurrentDictionary<string, object>();
+        private readonly ZenOsContext _context; // Dùng để truy cập vào DbContext
+        private readonly IConfiguration _config; // Dùng để đọc cấu hình ứng dụng
+        private readonly IdentityOptions _options; // Dùng để lấy thiết lập Identity
+        private readonly IStringLocalizer _localizer; // Dùng để đa ngôn ngữ hóa thông báo
+        private static readonly ConcurrentDictionary<string, object> otpStore
+            = new ConcurrentDictionary<string, object>(); // Dùng để lưu trữ mã OTP tạm thời
 
-        public AccountService(ZenOsContext context, IConfiguration config, IOptions<IdentityOptions> options)
+        public AccountService(ZenOsContext context, IConfiguration config, IStringLocalizer localizer, IOptions<IdentityOptions> options)
         {
             _context = context;
             _config = config;
+            _localizer = localizer;
             _options = options.Value;
         }
 
@@ -47,11 +51,11 @@ namespace ZenOS.BLL.Services
             var user = await _context.Users.AsNoTracking() // Tắt cơ chế "theo dõi thay đổi" (Change Tracking) của Entity Framework
                 .FirstOrDefaultAsync(s => !string.IsNullOrWhiteSpace(s.Username) && s.Username == username);
             if (user == null)
-                return APIResults<string>.Failure(Messages.InvalidUsernameOrPassword); // Luôn trả ra message chung chung để tránh hacker biết được thông tin chính xác
+                return APIResults<string>.Failure(_localizer[Messages.InvalidUsernameOrPassword]); // Luôn trả ra message chung chung để tránh hacker biết được thông tin chính xác
 
             var checkPassword = PasswordHasher.VerifyPassword(password, DataHelpers.GetString(user.PasswordHash));
             if (checkPassword == false)
-                return APIResults<string>.Failure(Messages.InvalidUsernameOrPassword); // Luôn trả ra message chung chung để tránh hacker biết được thông tin chính xác
+                return APIResults<string>.Failure(_localizer[Messages.InvalidUsernameOrPassword]); // Luôn trả ra message chung chung để tránh hacker biết được thông tin chính xác
 
             var employee = await _context.Employees.FirstOrDefaultAsync(s => s.Id == DataHelpers.GetGuid(user.EmployeeId));
 
@@ -85,7 +89,7 @@ namespace ZenOS.BLL.Services
             var tokenIssuer = _config["Tokens:Issuer"];
 
             if (string.IsNullOrEmpty(tokenKey))
-                return APIResults<string>.Failure(Messages.TokenKeyNotConfigured);
+                return APIResults<string>.Failure(_localizer[Messages.TokenKeyNotConfigured]);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -97,8 +101,8 @@ namespace ZenOS.BLL.Services
                expires: expirationTime, signingCredentials: creds);
 
             return token != null
-                ? APIResults<string>.Success(new JwtSecurityTokenHandler().WriteToken(token), Messages.AuthSuccess)
-                : APIResults<string>.Failure(Messages.AuthFailure);
+                ? APIResults<string>.Success(new JwtSecurityTokenHandler().WriteToken(token), _localizer[Messages.AuthSuccess])
+                : APIResults<string>.Failure(_localizer[Messages.AuthFailure]);
         }
 
         public async Task<APIResults<bool>> ResetPassword(UserModel request)
@@ -118,7 +122,7 @@ namespace ZenOS.BLL.Services
                && s.PhoneNumber == phoneNumber && s.Email == mail);
 
             if (user == null)
-                return APIResults<bool>.Failure(Messages.NotFoundUpdate);
+                return APIResults<bool>.Failure(_localizer[Messages.NotFoundUpdate]);
 
             var validationResult = ValidatePassword(password);
             if (validationResult.Any())
@@ -135,8 +139,8 @@ namespace ZenOS.BLL.Services
             var result = await _context.SaveChangesAsync();
 
             return result > 0
-                ? APIResults<bool>.Success(true, Messages.ResetPasswordSuccess)
-                : APIResults<bool>.Failure(Messages.ResetPasswordFailure);
+                ? APIResults<bool>.Success(true, _localizer[Messages.ResetPasswordSuccess])
+                : APIResults<bool>.Failure(_localizer[Messages.ResetPasswordFailure]);
         }
 
         public async Task<APIResults<bool>> SendOTP(MailModel mail)
@@ -148,14 +152,14 @@ namespace ZenOS.BLL.Services
             var result = await MailHelpers.SendMail(mail);
 
             return result
-                ? APIResults<bool>.Success(true, Messages.SendMailSuccess)
-                : APIResults<bool>.Failure(Messages.SendMailFailure);
+                ? APIResults<bool>.Success(true, _localizer[Messages.SendMailSuccess])
+                : APIResults<bool>.Failure(_localizer[Messages.SendMailFailure]);
         }
 
         private string ValidateOtp(string email, string otp)
         {
             if (!otpStore.TryGetValue(email, out var entryObj))
-                return Messages.OTPNotFound;
+                return _localizer[Messages.OTPNotFound];
 
             var entry = (dynamic)entryObj;
 
@@ -163,14 +167,14 @@ namespace ZenOS.BLL.Services
             if (DateTime.UtcNow > entry.ExpiresAt)
             {
                 otpStore.TryRemove(email, out _);
-                return Messages.OTPExpired;
+                return _localizer[Messages.OTPExpired];
             }
 
             // Kiểm tra số lần thử còn lại
             if (entry.AttemptsLeft <= 0)
             {
                 otpStore.TryRemove(email, out _);
-                return Messages.OTPNoAttemptsLeft;
+                return _localizer[Messages.OTPNoAttemptsLeft];
             }
 
             // Hash OTP nhập để so sánh
@@ -182,7 +186,7 @@ namespace ZenOS.BLL.Services
             {
                 entry.AttemptsLeft--;
                 otpStore[email] = entry; // cập nhật số lần thử
-                return Messages.OTPIncorrect;
+                return _localizer[Messages.OTPIncorrect];
             }
 
             // OTP đúng → remove khỏi store
@@ -222,22 +226,30 @@ namespace ZenOS.BLL.Services
             var errors = new List<IdentityError>();
 
             if (password.Length < _options.Password.RequiredLength)
-                errors.Add(new IdentityError { Code = Messages.RequiredLength, Description = _options.Password.RequiredLength.ToString() });
+                errors.Add(new IdentityError
+                {
+                    Code = _localizer[Messages.RequiredLength],
+                    Description = _options.Password.RequiredLength.ToString()
+                });
 
             if (_options.Password.RequireDigit && !password.Any(char.IsDigit))
-                errors.Add(new IdentityError { Code = Messages.RequireDigit });
+                errors.Add(new IdentityError { Code = _localizer[Messages.RequireDigit] });
 
             if (_options.Password.RequireLowercase && !password.Any(char.IsLower))
-                errors.Add(new IdentityError { Code = Messages.RequireLowercase });
+                errors.Add(new IdentityError { Code = _localizer[Messages.RequireLowercase] });
 
             if (_options.Password.RequireUppercase && !password.Any(char.IsUpper))
-                errors.Add(new IdentityError { Code = Messages.RequireUppercase });
+                errors.Add(new IdentityError { Code = _localizer[Messages.RequireUppercase] });
 
             if (_options.Password.RequireNonAlphanumeric && password.All(char.IsLetterOrDigit))
-                errors.Add(new IdentityError { Code = Messages.RequireNonAlphanumeric });
+                errors.Add(new IdentityError { Code = _localizer[Messages.RequireNonAlphanumeric] });
 
             if (password.Distinct().Count() < _options.Password.RequiredUniqueChars)
-                errors.Add(new IdentityError { Code = Messages.RequiredUniqueChars, Description = _options.Password.RequiredUniqueChars.ToString() });
+                errors.Add(new IdentityError
+                {
+                    Code = _localizer[Messages.RequiredUniqueChars],
+                    Description = _options.Password.RequiredUniqueChars.ToString()
+                });
 
             return errors;
         }

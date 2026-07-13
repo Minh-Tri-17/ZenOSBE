@@ -1,4 +1,5 @@
-﻿using ZenOS.BLL.Interfaces;
+﻿using Microsoft.Extensions.Localization;
+using ZenOS.BLL.Interfaces;
 using ZenOS.DAL.Models;
 using ZenOS.MB;
 using ZenOS.Util;
@@ -9,7 +10,7 @@ namespace ZenOS.BLL.Services
     {
         #region Infrastructure
 
-        public UserService(ZenOsContext context, ICurrentUserService currentUser) : base(context, currentUser)
+        public UserService(ZenOsContext context, ICurrentUserService currentUser, IStringLocalizer localizer) : base(context, currentUser, localizer)
         {
 
         }

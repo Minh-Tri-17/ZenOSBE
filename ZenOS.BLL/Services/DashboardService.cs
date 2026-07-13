@@ -1,4 +1,5 @@
-﻿using ZenOS.BLL.Interfaces;
+﻿using Microsoft.Extensions.Localization;
+using ZenOS.BLL.Interfaces;
 using ZenOS.DAL.Models;
 using ZenOS.MB;
 using ZenOS.Util;
@@ -11,11 +12,13 @@ namespace ZenOS.BLL.Services
 
         private readonly ZenOsContext _context; // Dùng để truy cập vào DbContext
         private readonly ICurrentUserService _currentUser; // Dùng để lấy thông tin người dùng hiện tại
+        private readonly IStringLocalizer _localizer; // Dùng để đa ngôn ngữ hóa thông báo
 
-        public DashboardService(ZenOsContext context, ICurrentUserService currentUser)
+        public DashboardService(ZenOsContext context, IStringLocalizer localizer, ICurrentUserService currentUser)
         {
             _context = context;
             _currentUser = currentUser;
+            _localizer = localizer;
         }
 
         #endregion
@@ -30,22 +33,22 @@ namespace ZenOS.BLL.Services
 
         public async Task<APIResults<decimal>> GetStatisticsProfit()
         {
-            return APIResults<decimal>.Success(12628, Messages.GetListResultSuccess);
+            return APIResults<decimal>.Success(12628, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<decimal>> GetStatisticsRevenue()
         {
-            return APIResults<decimal>.Success(14679, Messages.GetListResultSuccess);
+            return APIResults<decimal>.Success(14679, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<decimal>> GetStatisticsSpending()
         {
-            return APIResults<decimal>.Success(56575, Messages.GetListResultSuccess);
+            return APIResults<decimal>.Success(56575, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<int>> GetStatisticsCustomer()
         {
-            return APIResults<int>.Success(246, Messages.GetListResultSuccess);
+            return APIResults<int>.Success(246, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<List<string>>> GetStatisticsService()
@@ -64,7 +67,7 @@ namespace ZenOS.BLL.Services
                 "10. massage bấm huyệt - 1,050 khách/tháng",
             };
 
-            return APIResults<List<string>>.Success(listService, Messages.GetListResultSuccess);
+            return APIResults<List<string>>.Success(listService, _localizer[Messages.GetListResultSuccess]);
         }
 
         #endregion
@@ -93,7 +96,7 @@ namespace ZenOS.BLL.Services
                 Labels = new string[] { "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct" }
             };
 
-            return APIResults<DataChartNumericModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartNumericModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<DataChartSingleModel>> GetChartDonut()
@@ -104,7 +107,7 @@ namespace ZenOS.BLL.Services
                 Labels = new string[] { "series-1", "series-2", "series-3", "series-4", "series-5" }
             };
 
-            return APIResults<DataChartSingleModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartSingleModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<DataChartSingleModel>> GetChartFunnel()
@@ -115,7 +118,7 @@ namespace ZenOS.BLL.Services
                 Labels = new string[] { "Sweets", "Processed Foods", "Healthy Fats", "Meat", "Beans & Legumes", "Dairy", "Fruits & Vegetables", "Grains" }
             };
 
-            return APIResults<DataChartSingleModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartSingleModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<DataChartSingleModel>> GetChartLine()
@@ -126,7 +129,7 @@ namespace ZenOS.BLL.Services
                 Labels = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" }
             };
 
-            return APIResults<DataChartSingleModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartSingleModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<DataChartNumericModel>> GetChartRadar()
@@ -154,7 +157,7 @@ namespace ZenOS.BLL.Services
                 Labels = new string[] { "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct" }
             };
 
-            return APIResults<DataChartNumericModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartNumericModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<DataChartXYModel>> GetChartSlope()
@@ -207,7 +210,7 @@ namespace ZenOS.BLL.Services
                 Labels = new string[] { }
             };
 
-            return APIResults<DataChartXYModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartXYModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         public async Task<APIResults<DataChartTreeModel>> GetChartTree()
@@ -287,7 +290,7 @@ namespace ZenOS.BLL.Services
                 }
             };
 
-            return APIResults<DataChartTreeModel>.Success(dataChart, Messages.GetListResultSuccess);
+            return APIResults<DataChartTreeModel>.Success(dataChart, _localizer[Messages.GetListResultSuccess]);
         }
 
         #endregion
